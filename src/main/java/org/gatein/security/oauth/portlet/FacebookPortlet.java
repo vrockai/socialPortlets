@@ -10,6 +10,7 @@ import javax.portlet.RenderResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.webui.util.Util;
 import org.gatein.security.oauth.common.OAuthConstants;
@@ -28,8 +29,9 @@ public class FacebookPortlet extends GenericPortlet {
 
     @Override
     public void init() throws PortletException {
-        this.socialNetworkService = (SocialNetworkService)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(SocialNetworkService.class);
-        this.gtnFacebookProcessor = (GateInFacebookProcessor)ExoContainerContext.getCurrentContainer().getComponentInstanceOfType(GateInFacebookProcessor.class);
+        ExoContainer container = ExoContainerContext.getCurrentContainer();
+        this.socialNetworkService = (SocialNetworkService)container.getComponentInstanceOfType(SocialNetworkService.class);
+        this.gtnFacebookProcessor = (GateInFacebookProcessor)container.getComponentInstanceOfType(GateInFacebookProcessor.class);
     }
 
     @Override
