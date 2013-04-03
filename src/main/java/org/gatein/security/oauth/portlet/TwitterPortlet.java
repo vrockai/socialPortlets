@@ -1,21 +1,14 @@
 package org.gatein.security.oauth.portlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.exoplatform.container.ExoContainer;
-import org.exoplatform.container.ExoContainerContext;
-import org.exoplatform.portal.webui.util.Util;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
-import org.gatein.security.oauth.data.SocialNetworkService;
 import org.gatein.security.oauth.twitter.TwitterAccessTokenContext;
 import org.gatein.security.oauth.twitter.TwitterProcessor;
 import twitter4j.Twitter;

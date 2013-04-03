@@ -27,4 +27,37 @@
     </portlet-info>
   </portlet>
 
+  <portlet>
+    <portlet-name>GoogleUserInfoPortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.google.GoogleUserInfoPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Google User Info Portlet</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>GoogleActivitiesPortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.google.GoogleActivitiesPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Google Activities Portlet</title>
+    </portlet-info>
+  </portlet>
+
+  <portlet>
+    <portlet-name>GoogleFriendsPortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.google.GoogleFriendsPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Google Friends Portlet</title>
+    </portlet-info>
+  </portlet>
+
 </portlet-app>
