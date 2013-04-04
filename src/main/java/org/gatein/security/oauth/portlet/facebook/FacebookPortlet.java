@@ -1,4 +1,4 @@
-package org.gatein.security.oauth.portlet;
+package org.gatein.security.oauth.portlet.facebook;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,6 +17,7 @@ import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.data.SocialNetworkService;
 import org.gatein.security.oauth.facebook.GateInFacebookProcessor;
+import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 import org.gatein.security.oauth.social.FacebookPrincipal;
 
 /**

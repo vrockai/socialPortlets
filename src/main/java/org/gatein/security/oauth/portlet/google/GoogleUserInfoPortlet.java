@@ -39,16 +39,25 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleTokenResp
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
-        Oauth2 oauth2 = googleProcessor.getOAuth2Instance(accessToken);
-        Userinfo uinfo = oauth2.userinfo().v2().me().get().execute();
+        final Oauth2 oauth2 = googleProcessor.getOAuth2Instance(accessToken);
 
-        StringBuilder builder = new StringBuilder("Given name: " + uinfo.getGivenName())
-                .append("<br>Family name: " + uinfo.getFamilyName())
-                .append("<br>Email: " + uinfo.getEmail())
-                .append("<br>Birthday: " + uinfo.getBirthday())
-                .append("<br>Gender: " + uinfo.getGender())
-                .append("<br>Locale: " + uinfo.getLocale())
-                .append("<br><img src=\"" + uinfo.getPicture() + "?size=100\" title=\"" + uinfo.getName() + "\" />");
-        writeAndFinishResponse(builder.toString(), response);
+        Userinfo uinfo = new GoogleRequest<Userinfo>(response, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile") {
+
+            Userinfo run() throws IOException {
+                return oauth2.userinfo().v2().me().get().execute();
+            }
+
+        }.sendRequest();
+
+        if (uinfo != null) {
+            StringBuilder builder = new StringBuilder("Given name: " + uinfo.getGivenName())
+                    .append("<br>Family name: " + uinfo.getFamilyName())
+                    .append("<br>Email: " + uinfo.getEmail())
+                    .append("<br>Birthday: " + uinfo.getBirthday())
+                    .append("<br>Gender: " + uinfo.getGender())
+                    .append("<br>Locale: " + uinfo.getLocale())
+                    .append("<br><img src=\"" + uinfo.getPicture() + "?size=100\" title=\"" + uinfo.getName() + "\" />");
+            writeAndFinishResponse(builder.toString(), response);
+        }
     }
 }

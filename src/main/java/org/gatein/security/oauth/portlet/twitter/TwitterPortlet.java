@@ -1,4 +1,4 @@
-package org.gatein.security.oauth.portlet;
+package org.gatein.security.oauth.portlet.twitter;
 
 import java.io.IOException;
 
@@ -9,6 +9,7 @@ import javax.portlet.RenderResponse;
 import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
+import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 import org.gatein.security.oauth.twitter.TwitterAccessTokenContext;
 import org.gatein.security.oauth.twitter.TwitterProcessor;
 import twitter4j.Twitter;

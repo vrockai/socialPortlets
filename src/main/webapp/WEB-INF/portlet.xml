@@ -7,7 +7,7 @@
 
   <portlet>
     <portlet-name>FacebookPortlet</portlet-name>
-    <portlet-class>org.gatein.security.oauth.portlet.FacebookPortlet</portlet-class>
+    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
@@ -18,7 +18,7 @@
 
   <portlet>
     <portlet-name>TwitterPortlet</portlet-name>
-    <portlet-class>org.gatein.security.oauth.portlet.TwitterPortlet</portlet-class>
+    <portlet-class>org.gatein.security.oauth.portlet.twitter.TwitterPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
