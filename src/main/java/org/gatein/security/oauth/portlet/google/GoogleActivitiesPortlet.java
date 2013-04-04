@@ -26,26 +26,30 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
     private GoogleProcessor googleProcessor;
 
+
     @Override
     protected void afterInit(ExoContainer container) {
         this.googleProcessor = (GoogleProcessor)container.getComponentInstanceOfType(GoogleProcessor.class);
     }
+
 
     @Override
     protected OAuthProviderType<GoogleTokenResponse> getOAuthProvider() {
         return getOauthProviderTypeRegistry().getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE);
     }
 
+
     @Override
     protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, GoogleTokenResponse accessToken) throws PortletException, IOException {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 
+
+    // See https://developers.google.com/+/api/latest/activities/list for details
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
         PrintWriter writer = response.getWriter();
 
-        // See https://developers.google.com/+/api/latest/activities/list for details
         Plus service = googleProcessor.getPlusService(accessToken);
         final Plus.Activities.List list  = service.activities().list("me", "public");
         list.setMaxResults(10L);
@@ -58,6 +62,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
         }.sendRequest();
 
+        // TODO: jsp?
         if (activityFeed != null) {
             writer.println("<h2>Your last google+ activities</h2>");
             for (Activity activity : activityFeed.getItems()) {
