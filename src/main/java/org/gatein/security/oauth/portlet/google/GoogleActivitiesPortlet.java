@@ -50,7 +50,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
         PrintWriter writer = response.getWriter();
 
-        Plus service = googleProcessor.getPlusService(accessToken);
+        final Plus service = googleProcessor.getPlusService(accessToken);
         final Plus.Activities.List list  = service.activities().list("me", "public");
         list.setMaxResults(10L);
 
@@ -65,14 +65,20 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
         // TODO: jsp?
         if (activityFeed != null) {
             writer.println("<h2>Your last google+ activities</h2>");
-            for (Activity activity : activityFeed.getItems()) {
+            for (final Activity activity : activityFeed.getItems()) {
                 Activity.PlusObject activityObject = activity.getObject();
                 writer.println("<h3>" + activity.getTitle() + "</h3>");
                 writer.println("Likes: <b>" + activityObject.getPlusoners().getTotalItems() + "</b>");
                 writer.println(", Resharers: <b>" + activityObject.getResharers().getTotalItems() + "</b>, ");
                 writer.println("<a href=\"" + activity.getUrl() + "\" style=\"color: blue;\">Activity details</a><br><br>");
 
-                CommentFeed comments = service.comments().list(activity.getId()).execute();
+                CommentFeed comments = new GoogleRequest<CommentFeed>(response, "https://www.googleapis.com/auth/plus.login") {
+
+                    CommentFeed run() throws IOException {
+                        return service.comments().list(activity.getId()).execute();
+                    }
+
+                }.sendRequest();
 
                 int counter = 1;
                 for (Comment comment : comments.getItems()) {
