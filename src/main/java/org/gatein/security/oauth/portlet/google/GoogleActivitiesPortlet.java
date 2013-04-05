@@ -56,6 +56,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
         ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(response, "https://www.googleapis.com/auth/plus.login") {
 
+            @Override
             ActivityFeed run() throws IOException {
                 return list.execute();
             }
@@ -74,6 +75,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
                 CommentFeed comments = new GoogleRequest<CommentFeed>(response, "https://www.googleapis.com/auth/plus.login") {
 
+                    @Override
                     CommentFeed run() throws IOException {
                         return service.comments().list(activity.getId()).execute();
                     }

@@ -84,6 +84,7 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleTokenRespo
 
         PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(response, "https://www.googleapis.com/auth/plus.login") {
 
+            @Override
             PeopleFeed run() throws IOException {
                 return list.execute();
             }

@@ -43,6 +43,7 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleTokenResp
 
         Userinfo uinfo = new GoogleRequest<Userinfo>(response, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile") {
 
+            @Override
             Userinfo run() throws IOException {
                 return oauth2.userinfo().v2().me().get().execute();
             }
