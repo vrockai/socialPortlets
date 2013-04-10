@@ -34,11 +34,6 @@ public class TwitterPortlet extends AbstractSocialPortlet<TwitterAccessTokenCont
     }
 
     @Override
-    protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, TwitterAccessTokenContext accessToken) throws PortletException, IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     protected void handleRender(RenderRequest request, RenderResponse response, TwitterAccessTokenContext accessToken) throws PortletException, IOException {
         Twitter twitter = gtnTwitterProcessor.getAuthorizedTwitterInstance(accessToken);
 

@@ -33,11 +33,6 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleTokenResp
     }
 
     @Override
-    protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, GoogleTokenResponse accessToken) throws PortletException, IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
         final Oauth2 oauth2 = googleProcessor.getOAuth2Instance(accessToken);
 

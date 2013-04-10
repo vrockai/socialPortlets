@@ -30,7 +30,6 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
     public static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
-    public static final String RENDER_ACTION = "renderAction";
     public static final String RENDER_PARAM_OAUTH_REDIRECT = "renderParamOAuthRedirect";
 
     private SocialNetworkService socialNetworkService;
@@ -53,13 +52,17 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
 
     @ProcessAction(name = ACTION_OAUTH_REDIRECT)
-    public void actionRedirectToOAuthFlow(ActionRequest aReq, ActionResponse aResp) {
+    public void actionRedirectToOAuthFlow(ActionRequest aReq, ActionResponse aResp) throws IOException {
         // Save session attribute with URL to redirect. It will be used by GateIn to return to the page with this portlet after finish OAuth flow
         HttpServletRequest servletReq = getServletRequest();
         HttpSession session = servletReq.getSession();
         session.setAttribute(OAuthConstants.ATTRIBUTE_URL_TO_REDIRECT_AFTER_LINK_SOCIAL_ACCOUNT, servletReq.getRequestURI());
 
-        aReq.getPortletSession().setAttribute(RENDER_ACTION, RENDER_PARAM_OAUTH_REDIRECT);
+        // Redirect to start OAuth2 flow
+        String reqContextPath = servletReq.getContextPath();
+        OAuthProviderType<T> oauthProviderType = getOAuthProvider();
+        String initOauthFlowURL = oauthProviderType.getInitOAuthURL(reqContextPath);
+        getServletResponse().sendRedirect(initOauthFlowURL);
     }
 
 
@@ -75,30 +78,10 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
         OAuthProviderType<T> oauthProviderType = getOAuthProvider();
 
-        String renderAction = (String)request.getPortletSession().getAttribute(RENDER_ACTION);
-        if (renderAction != null) {
-            if (RENDER_PARAM_OAUTH_REDIRECT.equals(renderAction)) {
 
-                // Method actionRedirectToOAuthFlow was finished. We need to redirect to GateIn OAuth flow
-                String reqContextPath = getServletRequest().getContextPath();
-                String initOauthFlowURL = oauthProviderType.getInitOAuthURL(reqContextPath);
-                getServletResponse().sendRedirect(initOauthFlowURL);
-
-                // Clear state in session
-                request.getPortletSession().removeAttribute(RENDER_ACTION);
-            } else {
-
-                T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
-                if (accessToken != null) {
-                    handleRenderAction(request, response, renderAction, accessToken);
-                }
-            }
-        } else {
-
-            T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
-            if (accessToken != null) {
-                handleRender(request, response, accessToken);
-            }
+        T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
+        if (accessToken != null) {
+            handleRender(request, response, accessToken);
         }
     }
 
@@ -171,20 +154,6 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
      * @return instance of OAuth provider
      */
     protected abstract OAuthProviderType<T> getOAuthProvider();
-
-
-    /**
-     * Used to handle rendering when some portlet action was performed and this action set value to parameter {@link #RENDER_ACTION}.
-     * AccessToken is available via parameter, so subclass is able to perform some calls to OAuth Provider (social network) and
-     * do some interesting stuff with it.
-     *
-     * @param request render request
-     * @param response render response
-     * @param renderAction value of renderParameter. Subclass should decide which render flow it needs to perform based on this value
-     * @param accessToken non-null accessToken, which could be used to perform operations in given OAuth provider (Social network)
-     */
-    protected abstract void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, T accessToken)
-            throws PortletException, IOException;
 
 
     /**

@@ -16,6 +16,7 @@ import org.exoplatform.portal.webui.util.Util;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.data.SocialNetworkService;
+import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
 import org.gatein.security.oauth.facebook.GateInFacebookProcessor;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 import org.gatein.security.oauth.social.FacebookPrincipal;
@@ -25,7 +26,7 @@ import org.gatein.security.oauth.social.FacebookPrincipal;
  *
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class FacebookPortlet extends AbstractSocialPortlet<String> {
+public class FacebookUserInfoPortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
 
     private GateInFacebookProcessor gtnFacebookProcessor;
 
@@ -35,18 +36,14 @@ public class FacebookPortlet extends AbstractSocialPortlet<String> {
     }
 
     @Override
-    protected OAuthProviderType<String> getOAuthProvider() {
+    protected OAuthProviderType<FacebookAccessTokenContext> getOAuthProvider() {
         return getOauthProviderTypeRegistry().getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK);
     }
 
-    @Override
-    protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, String accessToken) {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
 
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, String accessToken) throws IOException {
-        FacebookPrincipal principal = gtnFacebookProcessor.getPrincipal(accessToken);
+    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
+        FacebookPrincipal principal = gtnFacebookProcessor.getPrincipal(accessToken.getAccessToken());
         writeAndFinishResponse(principal.toString(), response);
     }
 }

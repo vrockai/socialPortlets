@@ -39,12 +39,6 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
     }
 
 
-    @Override
-    protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, GoogleTokenResponse accessToken) throws PortletException, IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-
     // See https://developers.google.com/+/api/latest/activities/list for details
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
@@ -82,13 +76,15 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
                 }.sendRequest();
 
-                int counter = 1;
-                for (Comment comment : comments.getItems()) {
-                    writer.println("<b>Comment " + counter + "</b><br>");
-                    writer.println("From: " + comment.getActor().getDisplayName() + "<br>");
-                    writer.println("Text: " + comment.getObject().getContent() + "<br>");
-                    writer.println("Likes: " + comment.getPlusoners().getTotalItems() + "<br><br>");
-                    counter++;
+                if (comments != null) {
+                    int counter = 1;
+                    for (Comment comment : comments.getItems()) {
+                        writer.println("<b>Comment " + counter + "</b><br>");
+                        writer.println("From: " + comment.getActor().getDisplayName() + "<br>");
+                        writer.println("Text: " + comment.getObject().getContent() + "<br>");
+                        writer.println("Likes: " + comment.getPlusoners().getTotalItems() + "<br><br>");
+                        counter++;
+                    }
                 }
 
                 writer.println("<hr>");

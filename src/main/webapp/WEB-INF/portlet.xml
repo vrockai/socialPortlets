@@ -7,7 +7,7 @@
 
   <portlet>
     <portlet-name>FacebookPortlet</portlet-name>
-    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookPortlet</portlet-class>
+    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookUserInfoPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>

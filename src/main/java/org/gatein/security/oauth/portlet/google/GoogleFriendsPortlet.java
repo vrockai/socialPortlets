@@ -46,12 +46,6 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleTokenRespo
     }
 
 
-    @Override
-    protected void handleRenderAction(RenderRequest request, RenderResponse response, String renderAction, GoogleTokenResponse accessToken) throws PortletException, IOException {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-
     // See https://developers.google.com/+/api/latest/people/list for details
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
