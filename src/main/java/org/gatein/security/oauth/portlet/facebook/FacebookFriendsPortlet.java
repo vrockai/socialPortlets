@@ -47,15 +47,12 @@ import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
-import org.gatein.security.oauth.facebook.GateInFacebookProcessor;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
-
-    private GateInFacebookProcessor gtnFacebookProcessor;
 
     private static final String ATTR_FRIENDS_COUNT = "friendsCount";
     private static final String PARAM_PAGE = "_page";
@@ -64,7 +61,6 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
     @Override
     protected void afterInit(ExoContainer container) {
-        this.gtnFacebookProcessor = (GateInFacebookProcessor)container.getComponentInstanceOfType(GateInFacebookProcessor.class);
     }
 
     @Override
