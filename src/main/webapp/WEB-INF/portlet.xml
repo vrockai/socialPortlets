@@ -6,13 +6,33 @@
    http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
   <portlet>
-    <portlet-name>FacebookPortlet</portlet-name>
+    <portlet-name>FacebookUserInfoPortlet</portlet-name>
     <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookUserInfoPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Facebook Portlet</title>
+      <title>Facebook User Info Portlet</title>
+    </portlet-info>
+  </portlet>
+  <portlet>
+    <portlet-name>FacebookFriendsPortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookFriendsPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Facebook Friends Portlet</title>
+    </portlet-info>
+  </portlet>
+  <portlet>
+    <portlet-name>FacebookStatusSenderPortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookStatusSenderPortlet</portlet-class>
+    <supports>
+      <mime-type>text/html</mime-type>
+    </supports>
+    <portlet-info>
+      <title>Facebook Status Sender Portlet</title>
     </portlet-info>
   </portlet>
 

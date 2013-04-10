@@ -79,5 +79,11 @@
       <artifactId>google-api-services-oauth2</artifactId>
       <scope>provided</scope>
     </dependency>
+    <!-- Facebook dependencies (not provided for now as it's not needed in GateIn and so it's bundled in this portlet WAR -->
+    <dependency>
+      <groupId>com.restfb</groupId>
+      <artifactId>restfb</artifactId>
+      <version>1.6.12</version>
+    </dependency>
   </dependencies>
 </project>

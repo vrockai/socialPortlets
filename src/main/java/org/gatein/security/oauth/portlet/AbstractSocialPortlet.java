@@ -18,6 +18,8 @@ import javax.servlet.http.HttpSession;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.webui.util.Util;
+import org.gatein.common.logging.Logger;
+import org.gatein.common.logging.LoggerFactory;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.data.SocialNetworkService;
@@ -31,6 +33,8 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     public static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
     public static final String RENDER_PARAM_OAUTH_REDIRECT = "renderParamOAuthRedirect";
+
+    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     private SocialNetworkService socialNetworkService;
     private OAuthProviderTypeRegistry oauthProviderTypeRegistry;
