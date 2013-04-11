@@ -30,9 +30,7 @@ import org.gatein.security.oauth.registry.OAuthProviderTypeRegistry;
  */
 public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
-    public static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
-
-    public static final String RENDER_PARAM_OAUTH_REDIRECT = "renderParamOAuthRedirect";
+    private static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -51,6 +49,7 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
             this.portalName = "GateIn";
         }
 
+        log.debug("PortalName from configuration: " + portalName);
         afterInit(container);
     }
 
@@ -73,6 +72,11 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     // Normally it shouldn't be needed to override this method in subclasses
     @Override
     protected void doView(RenderRequest request, RenderResponse response) throws PortletException, IOException {
+        boolean trace = log.isTraceEnabled();
+        if (trace) {
+            log.trace("Invoked  doView");
+        }
+
         String username = request.getRemoteUser();
 
         if (username == null) {
@@ -85,7 +89,13 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
         T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
         if (accessToken != null) {
+            if (trace) {
+                log.trace("Invoking handleRedirect with accessToken " + accessToken);
+            }
             handleRender(request, response, accessToken);
+            if (trace) {
+                log.trace("Finished handleRedirect");
+            }
         }
     }
 

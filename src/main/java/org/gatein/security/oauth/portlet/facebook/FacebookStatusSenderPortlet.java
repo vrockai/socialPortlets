@@ -65,10 +65,6 @@ public class FacebookStatusSenderPortlet extends AbstractSocialPortlet<FacebookA
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
-        if (log.isTraceEnabled()) {
-            log.trace("handleRender for accessToken " + accessToken);
-        }
-
         PrintWriter out = response.getWriter();
         PortletURL url = response.createActionURL();
         url.setParameter(ActionRequest.ACTION_NAME, ACTION_SEND_STATUS);
@@ -88,10 +84,6 @@ public class FacebookStatusSenderPortlet extends AbstractSocialPortlet<FacebookA
         out.println("</table>");
         out.println("<input type=\"submit\" value=\"submit\" />");
         out.println("</form>");
-
-        if (log.isTraceEnabled()) {
-            log.trace("finished handleRender");
-        }
     }
 
 

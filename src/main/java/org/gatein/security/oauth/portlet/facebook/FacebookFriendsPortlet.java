@@ -71,9 +71,6 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
-        if (log.isTraceEnabled()) {
-            log.trace("handleRender with accessToken: " + accessToken);
-        }
         PortletSession session = request.getPortletSession();
         PrintWriter out = response.getWriter();
 
@@ -164,10 +161,6 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             }
         }
         out.println("</td></tr></table>");
-
-        if (log.isTraceEnabled()) {
-            log.trace("handleRender finished");
-        }
     }
 
     private String getLikersText(List<NamedFacebookType> likers) {
