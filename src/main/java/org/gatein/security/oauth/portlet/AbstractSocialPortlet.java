@@ -107,11 +107,11 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
         T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
         if (accessToken != null) {
             if (trace) {
-                log.trace("Invoking handleRedirect with accessToken " + accessToken);
+                log.trace("Invoking handleRender with accessToken " + accessToken);
             }
             handleRender(request, response, accessToken);
             if (trace) {
-                log.trace("Finished handleRedirect");
+                log.trace("Finished handleRender");
             }
         }
     }
@@ -142,13 +142,13 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     }
 
 
-    // Intended to be overriden by subclasses if needed
+    // Intended to be used and/or overriden by subclasses if needed
     protected HttpServletRequest getServletRequest() {
         return Util.getPortalRequestContext().getRequest();
     }
 
 
-    // Intended to be overriden by subclasses if needed
+    // Intended to be used and/or overriden by subclasses if needed
     protected HttpServletResponse getServletResponse() {
         return Util.getPortalRequestContext().getResponse();
     }

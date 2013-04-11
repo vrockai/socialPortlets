@@ -56,6 +56,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     private static final String ATTR_FRIENDS_COUNT = "friendsCount";
     private static final String PARAM_PAGE = "_page";
     private static final String PARAM_FRIEND_ID = "_friendID";
+    private static final String PARAM_FILTER = "_filter";
     private static final int ITEMS_PER_PAGE = 10;
 
     @Override
@@ -74,14 +75,59 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         PrintWriter out = response.getWriter();
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessToken.getAccessToken());
-        UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
 
+        // Obtain info about "me" including picture and show them
+        UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
         // TODO: ajax...
         PortletURL myUrlForPersonDetail = response.createRenderURL();
         myUrlForPersonDetail.setParameter(PARAM_FRIEND_ID,  me.getId());
         out.println("<img src=\"" + me.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + myUrlForPersonDetail + "\">" + me.getName() + "</a><br>");
         out.println("<hr>");
 
+        out.println("<table border><tr><td width=\"50%\" style=\"vertical-align: top\">");
+        out.println("<h3>My friends</h3>");
+
+        String filter = request.getParameter(PARAM_FILTER);
+        List<String> idsOfFriendsToDisplay;
+        if (filter != null) {
+            idsOfFriendsToDisplay = new ArrayList<String>();//getIdsOfFilteredFriends();
+        } else {
+            idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient, out);
+        }
+
+        // Filter results
+        out.println("<br><br><hr><br>");
+
+        // Fetch all required friends with obtained ids
+        JsonObject friendsResult = facebookClient.fetchObjects(idsOfFriendsToDisplay, JsonObject.class, Parameter.with("fields", "id,name,picture"));
+
+        for (String id : idsOfFriendsToDisplay) {
+            JsonObject current = friendsResult.getJsonObject(id);
+            UserWithPicture friendWithPicture = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
+
+            // TODO: ajax...
+            PortletURL urlForPersonDetail = response.createRenderURL();
+            urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
+            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br><br>");
+        }
+        out.println("</td><td style=\"vertical-align: top\">");
+
+        String friendId = request.getParameter(PARAM_FRIEND_ID);
+        if (friendId != null) {
+            displayStatusOfPerson(friendId, out, facebookClient, me);
+        }
+        out.println("</td></tr></table>");
+    }
+
+    private String getLikersText(List<NamedFacebookType> likers) {
+        StringBuilder builder = new StringBuilder();
+        for (NamedFacebookType like : likers) {
+            builder.append(like.getName() + "\n");
+        }
+        return builder.toString();
+    }
+
+    private List<String> getIdsOfPaginatedFriends(RenderRequest request, RenderResponse response, PortletSession session, FacebookClient facebookClient, PrintWriter out) {
         // Count total number of friends
         Integer friendsCount = (Integer)session.getAttribute(ATTR_FRIENDS_COUNT);
         if (friendsCount == null) {
@@ -105,8 +151,6 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         Integer indexStart = (pageNumber - 1) * ITEMS_PER_PAGE;
         List<NamedFacebookType> friendsToDisplay = facebookClient.fetchConnection("me/friends", NamedFacebookType.class, Parameter.with("offset", indexStart), Parameter.with("limit", ITEMS_PER_PAGE)).getData();
 
-        out.println("<table border><tr><td width=\"50%\" style=\"vertical-align: top\">");
-        out.println("<h3>My friends</h3>");
         out.println("Count of friends: " + friendsCount + "<br>");
         out.println("Page: " + pageNumber + "<br>");
         out.println("Select page: ");
@@ -116,64 +160,41 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             url.setParameter(PARAM_PAGE,  String.valueOf(i));
             out.print("<a style=\"color: blue;\" href=\"" + url + "\">" + i + "</a> ");
         }
-        out.println("<br><br><hr><br>");
-
 
         // Collect IDS of friends to display
         List<String> ids = new ArrayList<String>();
         for (NamedFacebookType current : friendsToDisplay) {
             ids.add(current.getId());
         }
-        // Fetch them all
-        JsonObject friendsResult = facebookClient.fetchObjects(ids, JsonObject.class, Parameter.with("fields", "id,name,picture"));
 
-        for (String id : ids) {
-            JsonObject current = friendsResult.getJsonObject(id);
-            UserWithPicture friendWithPicture = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
-
-            // TODO: ajax...
-            PortletURL urlForPersonDetail = response.createRenderURL();
-            urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
-            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br><br>");
-        }
-        out.println("</td><td style=\"vertical-align: top\">");
-
-        String friendId = request.getParameter(PARAM_FRIEND_ID);
-        if (friendId != null) {
-            Connection<StatusMessage> statusMessageConnection = facebookClient.fetchConnection(friendId + "/statuses", StatusMessage.class, Parameter.with("limit", 5));
-            List<StatusMessage> statuses = statusMessageConnection.getData();
-
-            if (statuses.size() == 0) {
-                // Different scope is needed for me and different for my friends
-                String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
-                out.println("<b>WARNING: </b>This user doesn't have any public messages or you have insufficient scope. Make sure your access token have scope: <b>" + neededScope + "</b>");
-            } else {
-                NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
-                out.println("<h3>" + currentFriendToDisplay.getName() + "</h3>");
-                for (StatusMessage statusMessage : statuses) {
-                    out.println("<b>Status message: </b>" + statusMessage.getMessage() + "<br>");
-                    out.println("<div style=\"font-size: 13px;\">");
-                    out.println("Time: " + statusMessage.getUpdatedTime() + " - ");
-                    out.println("<img src=\"TODO:some-thumbs-picture.gif\" alt=\"Likes: " + statusMessage.getLikes().size() + "\" title=\"" + getLikersText(statusMessage.getLikes()) + "\" /></div><br><hr>");
-
-                    List<Comment> comments = statusMessage.getComments();
-                    out.println("<b>Comments: </b><br>");
-                    for (Comment comment : comments) {
-                        out.println("<i>" + comment.getFrom().getName() + "</i>: " + comment.getMessage() + "<br>");
-                        out.println("<div style=\"font-size: 11px;\">Time: " + comment.getCreatedTime() + " - Likes: " + comment.getLikeCount() + "</div><br>");
-                    }
-                    out.println("<br><br><hr>");
-                }
-            }
-        }
-        out.println("</td></tr></table>");
+        return ids;
     }
 
-    private String getLikersText(List<NamedFacebookType> likers) {
-        StringBuilder builder = new StringBuilder();
-        for (NamedFacebookType like : likers) {
-            builder.append(like.getName() + "\n");
+    private void displayStatusOfPerson(String friendId, PrintWriter out, FacebookClient facebookClient, NamedFacebookType me) {
+        Connection<StatusMessage> statusMessageConnection = facebookClient.fetchConnection(friendId + "/statuses", StatusMessage.class, Parameter.with("limit", 5));
+        List<StatusMessage> statuses = statusMessageConnection.getData();
+
+        if (statuses.size() == 0) {
+            // Different scope is needed for me and different for my friends
+            String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
+            out.println("<b>WARNING: </b>This user doesn't have any public messages or you have insufficient scope. Make sure your access token have scope: <b>" + neededScope + "</b>");
+        } else {
+            NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
+            out.println("<h3>" + currentFriendToDisplay.getName() + "</h3>");
+            for (StatusMessage statusMessage : statuses) {
+                out.println("<b>Status message: </b>" + statusMessage.getMessage() + "<br>");
+                out.println("<div style=\"font-size: 13px;\">");
+                out.println("Time: " + statusMessage.getUpdatedTime() + " - ");
+                out.println("<img src=\"TODO:some-thumbs-picture.gif\" alt=\"Likes: " + statusMessage.getLikes().size() + "\" title=\"" + getLikersText(statusMessage.getLikes()) + "\" /></div><br><hr>");
+
+                List<Comment> comments = statusMessage.getComments();
+                out.println("<b>Comments: </b><br>");
+                for (Comment comment : comments) {
+                    out.println("<i>" + comment.getFrom().getName() + "</i>: " + comment.getMessage() + "<br>");
+                    out.println("<div style=\"font-size: 11px;\">Time: " + comment.getCreatedTime() + " - Likes: " + comment.getLikeCount() + "</div><br>");
+                }
+                out.println("<br><br><hr>");
+            }
         }
-        return builder.toString();
     }
 }
