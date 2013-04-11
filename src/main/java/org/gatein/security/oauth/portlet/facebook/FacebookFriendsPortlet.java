@@ -112,7 +112,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             // TODO: ajax...
             PortletURL url = response.createRenderURL();
             url.setParameter(PARAM_PAGE,  String.valueOf(i));
-            out.print("<a href=\"" + url + "\">" + i + "</a> ");
+            out.print("<a style=\"color: blue;\" href=\"" + url + "\">" + i + "</a> ");
         }
         out.println("<br><br><hr><br>");
 
@@ -132,7 +132,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             // TODO: ajax...
             PortletURL urlForPersonDetail = response.createRenderURL();
             urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
-            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br>");
+            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br>");
         }
         out.println("</td><td style=\"vertical-align: top\">");
 

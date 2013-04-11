@@ -54,6 +54,23 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     }
 
 
+    @Override
+    public void processAction(ActionRequest request, ActionResponse response) throws PortletException,
+            java.io.IOException {
+        // Just add some logging for now
+        String action = request.getParameter(ActionRequest.ACTION_NAME);
+        boolean trace = log.isTraceEnabled();
+        if (trace) {
+            log.trace("Invoked  processAction with action: " + action);
+        }
+
+        super.processAction(request, response);
+
+        if (trace) {
+            log.trace("Finished  processAction with action: " + action);
+        }
+    }
+
     @ProcessAction(name = ACTION_OAUTH_REDIRECT)
     public void actionRedirectToOAuthFlow(ActionRequest aReq, ActionResponse aResp) throws IOException {
         // Save session attribute with URL to redirect. It will be used by GateIn to return to the page with this portlet after finish OAuth flow
