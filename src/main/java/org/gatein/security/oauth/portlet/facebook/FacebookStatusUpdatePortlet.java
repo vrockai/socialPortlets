@@ -46,13 +46,12 @@ import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
-import org.gatein.security.oauth.facebook.GateInFacebookProcessor;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class FacebookStatusSenderPortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
+public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
 
     private static final String ACTION_SEND_STATUS = "_sendStatus";
     private static final String ACTION_BACK = "_backToForm";
@@ -153,6 +152,7 @@ public class FacebookStatusSenderPortlet extends AbstractSocialPortlet<FacebookA
 
         // Obtain accessToken from portlet session
         FacebookAccessTokenContext accessTokenContext = (FacebookAccessTokenContext)aReq.getPortletSession().getAttribute(ATTR_FB_ACCESS_TOKEN);
+
         FacebookClient facebookClient = new DefaultFacebookClient(accessTokenContext.getAccessToken());
         List<Parameter> params = new ArrayList<Parameter>();
         appendParam(params, "message", message);

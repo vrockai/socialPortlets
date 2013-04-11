@@ -26,13 +26,13 @@
     </portlet-info>
   </portlet>
   <portlet>
-    <portlet-name>FacebookStatusSenderPortlet</portlet-name>
-    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookStatusSenderPortlet</portlet-class>
+    <portlet-name>FacebookStatusUpdatePortlet</portlet-name>
+    <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookStatusUpdatePortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
-      <title>Facebook Status Sender Portlet</title>
+      <title>Facebook Status Update Portlet</title>
     </portlet-info>
   </portlet>
 
