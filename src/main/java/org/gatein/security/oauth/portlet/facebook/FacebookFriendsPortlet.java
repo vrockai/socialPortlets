@@ -42,7 +42,6 @@ import com.restfb.json.JsonObject;
 import com.restfb.types.Comment;
 import com.restfb.types.NamedFacebookType;
 import com.restfb.types.StatusMessage;
-import com.restfb.types.User;
 import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
@@ -75,10 +74,12 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         PrintWriter out = response.getWriter();
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessToken.getAccessToken());
-        User user = facebookClient.fetchObject("me", User.class);
-        out.println("User: " + user.getName() + "<br>");
-        out.println("username: " + user.getUsername() + "<br>");
-        out.println("email: " + user.getEmail() + "<br>");
+        UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
+
+        // TODO: ajax...
+        PortletURL myUrlForPersonDetail = response.createRenderURL();
+        myUrlForPersonDetail.setParameter(PARAM_FRIEND_ID,  me.getId());
+        out.println("<img src=\"" + me.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + myUrlForPersonDetail + "\">" + me.getName() + "</a><br>");
         out.println("<hr>");
 
         // Count total number of friends
@@ -105,6 +106,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         List<NamedFacebookType> friendsToDisplay = facebookClient.fetchConnection("me/friends", NamedFacebookType.class, Parameter.with("offset", indexStart), Parameter.with("limit", ITEMS_PER_PAGE)).getData();
 
         out.println("<table border><tr><td width=\"50%\" style=\"vertical-align: top\">");
+        out.println("<h3>My friends</h3>");
         out.println("Count of friends: " + friendsCount + "<br>");
         out.println("Page: " + pageNumber + "<br>");
         out.println("Select page: ");
@@ -132,7 +134,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             // TODO: ajax...
             PortletURL urlForPersonDetail = response.createRenderURL();
             urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
-            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br>");
+            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br><br>");
         }
         out.println("</td><td style=\"vertical-align: top\">");
 
@@ -142,8 +144,12 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             List<StatusMessage> statuses = statusMessageConnection.getData();
 
             if (statuses.size() == 0) {
-                out.println("<b>WARNING: </b>This user doesn't have any public messages or you have insufficient scope. Make sure your access token have scopes: <b>email, friends_status</b>");
+                // Different scope is needed for me and different for my friends
+                String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
+                out.println("<b>WARNING: </b>This user doesn't have any public messages or you have insufficient scope. Make sure your access token have scope: <b>" + neededScope + "</b>");
             } else {
+                NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
+                out.println("<h3>" + currentFriendToDisplay.getName() + "</h3>");
                 for (StatusMessage statusMessage : statuses) {
                     out.println("<b>Status message: </b>" + statusMessage.getMessage() + "<br>");
                     out.println("<div style=\"font-size: 13px;\">");
