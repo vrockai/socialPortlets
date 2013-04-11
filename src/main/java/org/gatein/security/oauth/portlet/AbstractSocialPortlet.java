@@ -32,7 +32,7 @@ import org.gatein.security.oauth.registry.OAuthProviderTypeRegistry;
  */
 public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
-    private static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
+    protected static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -84,6 +84,13 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
         String reqContextPath = servletReq.getContextPath();
         OAuthProviderType<T> oauthProviderType = getOAuthProvider();
         String initOauthFlowURL = oauthProviderType.getInitOAuthURL(reqContextPath);
+
+        // Attach custom scope
+        String customScope = aReq.getParameter(OAuthConstants.PARAM_CUSTOM_SCOPE);
+        if (customScope != null) {
+            initOauthFlowURL = initOauthFlowURL + "&" + OAuthConstants.PARAM_CUSTOM_SCOPE + "=" + customScope;
+        }
+
         getServletResponse().sendRedirect(initOauthFlowURL);
     }
 

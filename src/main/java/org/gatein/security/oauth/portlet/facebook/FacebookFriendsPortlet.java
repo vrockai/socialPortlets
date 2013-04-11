@@ -115,7 +115,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient, out);
         }
 
-        // Filter results
+        // Render form with filter
         PortletURL filterURL = response.createActionURL();
         filterURL.setParameter(ActionRequest.ACTION_NAME, ACTION_FILTER);
         out.println("<form action=\"" + filterURL + "\" method=\"POST\">");
@@ -145,7 +145,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
         String friendId = request.getParameter(PARAM_FRIEND_ID);
         if (friendId != null) {
-            displayStatusOfPerson(friendId, out, facebookClient, me);
+            displayStatusOfPerson(friendId, out, facebookClient, me, accessToken, response);
         }
         out.println("</td></tr></table>");
     }
@@ -202,6 +202,8 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     }
 
     private List<String> getIdsOfFilteredFriends(String filter, FacebookClient facebookClient) {
+        // Not good to obtain all friends within each request, but we don't have better way atm (limitation of facebook search api...)
+        // TODO: Cache it?
         Connection<NamedFacebookType> connection = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
         List<NamedFacebookType> allFriends = connection.getData();
         List<String> result = new ArrayList<String>();
@@ -213,14 +215,25 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         return result;
     }
 
-    private void displayStatusOfPerson(String friendId, PrintWriter out, FacebookClient facebookClient, NamedFacebookType me) {
+    private void displayStatusOfPerson(String friendId, PrintWriter out, FacebookClient facebookClient, NamedFacebookType me, FacebookAccessTokenContext accessTokenContext, RenderResponse response) {
         Connection<StatusMessage> statusMessageConnection = facebookClient.fetchConnection(friendId + "/statuses", StatusMessage.class, Parameter.with("limit", 5));
         List<StatusMessage> statuses = statusMessageConnection.getData();
 
         if (statuses.size() == 0) {
             // Different scope is needed for me and different for my friends
             String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
-            out.println("<b>WARNING: </b>This user doesn't have any public messages or you have insufficient scope. Make sure your access token have scope: <b>" + neededScope + "</b>");
+
+            if (accessTokenContext.isScopeAvailable(neededScope)) {
+                out.println("This user doesn't have any public messages");
+            } else {
+                out.println("<b>WARNING: </b>You have insufficient scope. Your access token need to have scope: <b>" + neededScope + "</b><br>");
+
+                // Create URL for start OAuth2 flow with custom scope added
+                PortletURL actionURL = response.createActionURL();
+                actionURL.setParameter(ActionRequest.ACTION_NAME, AbstractSocialPortlet.ACTION_OAUTH_REDIRECT);
+                actionURL.setParameter(OAuthConstants.PARAM_CUSTOM_SCOPE, neededScope);
+                out.println("Click <a style=\"color: blue;\" href=\"" + actionURL + "\">here</a> to fix it<br>");
+            }
         } else {
             NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
             out.println("<h3>" + currentFriendToDisplay.getName() + "</h3>");
