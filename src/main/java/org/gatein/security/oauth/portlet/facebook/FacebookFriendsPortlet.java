@@ -29,8 +29,11 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.portlet.ActionRequest;
+import javax.portlet.ActionResponse;
 import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
+import javax.portlet.ProcessAction;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -58,6 +61,23 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     private static final String PARAM_FRIEND_ID = "_friendID";
     private static final String PARAM_FILTER = "_filter";
     private static final int ITEMS_PER_PAGE = 10;
+
+    private static final String ACTION_FILTER = "_actionFilter";
+    private static final String BUTTON_TRIGGER_FILTER = "triggerFilter";
+    private static final String BUTTON_CANCEL_FILTER = "cancelFilter";
+
+    @ProcessAction(name = ACTION_FILTER)
+    public void actionTriggerFilter(ActionRequest aReq, ActionResponse aResp) throws IOException {
+        if (aReq.getParameter(BUTTON_TRIGGER_FILTER) != null) {
+
+            // User pressed 'Submit filter'
+            getParameterAndSaveItToSession(PARAM_FILTER, aReq, aReq.getPortletSession());
+        } else {
+
+            // User pressed 'Cancel filter'
+            aReq.getPortletSession().removeAttribute(PARAM_FILTER);
+        }
+    }
 
     @Override
     protected void afterInit(ExoContainer container) {
@@ -87,28 +107,39 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         out.println("<table border><tr><td width=\"50%\" style=\"vertical-align: top\">");
         out.println("<h3>My friends</h3>");
 
-        String filter = request.getParameter(PARAM_FILTER);
+        String filter = (String)session.getAttribute(PARAM_FILTER);
         List<String> idsOfFriendsToDisplay;
         if (filter != null) {
-            idsOfFriendsToDisplay = new ArrayList<String>();//getIdsOfFilteredFriends();
+            idsOfFriendsToDisplay = getIdsOfFilteredFriends(filter, facebookClient);
         } else {
             idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient, out);
         }
 
         // Filter results
+        PortletURL filterURL = response.createActionURL();
+        filterURL.setParameter(ActionRequest.ACTION_NAME, ACTION_FILTER);
+        out.println("<form action=\"" + filterURL + "\" method=\"POST\">");
+        String tmp = filter==null ? "" : " value=\"" + filter + "\"";
+        out.println("Filter: <input name=\"" + PARAM_FILTER + "\"" + tmp + " />");
+        out.println("<input type=\"submit\" name=\"" + BUTTON_TRIGGER_FILTER + "\" value=\"Submit Filter\" />");
+        out.println("<input type=\"submit\" name=\"" + BUTTON_CANCEL_FILTER + "\" value=\"Cancel Filter\" /><br>");
+        out.println("</form>");
+
         out.println("<br><br><hr><br>");
 
-        // Fetch all required friends with obtained ids
-        JsonObject friendsResult = facebookClient.fetchObjects(idsOfFriendsToDisplay, JsonObject.class, Parameter.with("fields", "id,name,picture"));
+        if (idsOfFriendsToDisplay.size() > 0) {
+            // Fetch all required friends with obtained ids
+            JsonObject friendsResult = facebookClient.fetchObjects(idsOfFriendsToDisplay, JsonObject.class, Parameter.with("fields", "id,name,picture"));
 
-        for (String id : idsOfFriendsToDisplay) {
-            JsonObject current = friendsResult.getJsonObject(id);
-            UserWithPicture friendWithPicture = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
+            for (String id : idsOfFriendsToDisplay) {
+                JsonObject current = friendsResult.getJsonObject(id);
+                UserWithPicture friendWithPicture = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
 
-            // TODO: ajax...
-            PortletURL urlForPersonDetail = response.createRenderURL();
-            urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
-            out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br><br>");
+                // TODO: ajax...
+                PortletURL urlForPersonDetail = response.createRenderURL();
+                urlForPersonDetail.setParameter(PARAM_FRIEND_ID,  friendWithPicture.getId());
+                out.println("<img src=\"" + friendWithPicture.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + urlForPersonDetail + "\">" + friendWithPicture.getName() + "</a><br><br>");
+            }
         }
         out.println("</td><td style=\"vertical-align: top\">");
 
@@ -168,6 +199,18 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         }
 
         return ids;
+    }
+
+    private List<String> getIdsOfFilteredFriends(String filter, FacebookClient facebookClient) {
+        Connection<NamedFacebookType> connection = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
+        List<NamedFacebookType> allFriends = connection.getData();
+        List<String> result = new ArrayList<String>();
+        for (NamedFacebookType current : allFriends) {
+            if (current.getName().contains(filter)) {
+                result.add(current.getId());
+            }
+        }
+        return result;
     }
 
     private void displayStatusOfPerson(String friendId, PrintWriter out, FacebookClient facebookClient, NamedFacebookType me) {

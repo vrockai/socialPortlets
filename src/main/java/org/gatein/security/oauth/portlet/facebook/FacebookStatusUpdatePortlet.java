@@ -209,17 +209,6 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         return message == null || message.length() == 0;
     }
 
-    private String getParameterAndSaveItToSession(String paramName, ActionRequest req, PortletSession session) {
-        String paramValue = req.getParameter(paramName);
-        if (paramValue != null) {
-            session.setAttribute(paramName, paramValue);
-        } else {
-            paramValue = (String)session.getAttribute(paramName);
-        }
-
-        return paramValue;
-    }
-
     private void appendParam(List<Parameter> params, String paramName, String paramValue) {
         if (paramValue != null) {
             params.add(Parameter.with(paramName, paramValue));

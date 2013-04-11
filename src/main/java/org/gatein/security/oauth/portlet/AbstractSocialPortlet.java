@@ -7,6 +7,8 @@ import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
 import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequest;
+import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.ProcessAction;
 import javax.portlet.RenderRequest;
@@ -151,6 +153,18 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     // Intended to be used and/or overriden by subclasses if needed
     protected HttpServletResponse getServletResponse() {
         return Util.getPortalRequestContext().getResponse();
+    }
+
+    // Helper method. Intended to be used by subclasses
+    protected String getParameterAndSaveItToSession(String paramName, PortletRequest req, PortletSession session) {
+        String paramValue = req.getParameter(paramName);
+        if (paramValue != null) {
+            session.setAttribute(paramName, paramValue);
+        } else {
+            paramValue = (String)session.getAttribute(paramName);
+        }
+
+        return paramValue;
     }
 
 
