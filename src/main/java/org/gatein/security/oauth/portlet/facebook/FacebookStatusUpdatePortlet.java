@@ -61,9 +61,10 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
     private static final String RENDER_PARAM_ERROR_MESSAGE = "renderParamErrorMessage";
 
     private enum Status {
+        SUCCESS,
         NOT_SPECIFIED_MESSAGE_OR_LINK,
-        FACEBOOK_ERROR,
-        SUCCESS
+        FACEBOOK_ERROR_INSUFFICIENT_SCOPE,
+        FACEBOOK_ERROR_OTHER
     }
 
     @Override
@@ -85,14 +86,22 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         String statusParam = request.getParameter(RENDER_PARAM_STATUS);
         if (statusParam != null) {
             Status status = Status.valueOf(statusParam);
-            if (status == Status.NOT_SPECIFIED_MESSAGE_OR_LINK) {
-                out.println("Either message or link needs to be specified!<br>");
-            } else if (status == Status.FACEBOOK_ERROR) {
-                String errorMessage = request.getParameter(RENDER_PARAM_ERROR_MESSAGE);
-                // TODO: Redirect to obtain better access token if problem is here
-                out.println("Error occured during facebook processing. Error details: " + errorMessage + "<br>");
-            } else if (status == Status.SUCCESS) {
+            if (status == Status.SUCCESS) {
                 out.println("Your message has been successfully published on your Facebook wall!<br>");
+            } else if (status == Status.SUCCESS) {
+                out.println("Either message or link needs to be specified!<br>");
+            } else if (status == Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE) {
+                String neededScope = "publish_stream";
+                out.println("You have insufficient privileges (Facebook scope) to publish message on your FB wall. Your access token need to have scope: <b>" + neededScope + "</b><br>");
+
+                // Create URL for start OAuth2 flow with custom scope added
+                PortletURL actionURL = response.createActionURL();
+                actionURL.setParameter(ActionRequest.ACTION_NAME, AbstractSocialPortlet.ACTION_OAUTH_REDIRECT);
+                actionURL.setParameter(OAuthConstants.PARAM_CUSTOM_SCOPE, neededScope);
+                out.println("Click <a style=\"color: blue;\" href=\"" + actionURL + "\">here</a> to fix it<br>");
+            } else if (status == Status.FACEBOOK_ERROR_OTHER) {
+                String errorMessage = request.getParameter(RENDER_PARAM_ERROR_MESSAGE);
+                out.println("Error occured during facebook processing. Error details: " + errorMessage + "<br>");
             }
 
             PortletURL backURL = response.createActionURL();
@@ -172,10 +181,11 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
             String exMessage = foe.getErrorCode() + " - " + foe.getErrorType() + " - " + foe.getErrorMessage();
             log.warn(exMessage);
             if (foe.getErrorMessage().contains("The user hasn't authorized the application to perform this action")) {
-                exMessage = exMessage + "<br>You need at least privileges of scope: publish_stream";
+                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE.name());
+            } else {
+                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_OTHER.name());
+                aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
             }
-            aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR.name());
-            aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
         }
 
     }

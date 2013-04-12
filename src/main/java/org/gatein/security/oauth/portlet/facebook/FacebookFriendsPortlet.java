@@ -226,7 +226,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             if (accessTokenContext.isScopeAvailable(neededScope)) {
                 out.println("This user doesn't have any public messages");
             } else {
-                out.println("<b>WARNING: </b>You have insufficient scope. Your access token need to have scope: <b>" + neededScope + "</b><br>");
+                out.println("<b>WARNING: </b>You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token need to have scope: <b>" + neededScope + "</b><br>");
 
                 // Create URL for start OAuth2 flow with custom scope added
                 PortletURL actionURL = response.createActionURL();
