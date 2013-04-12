@@ -53,7 +53,7 @@ import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
  */
 public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
 
-    private static final String ACTION_SEND_STATUS = "_sendStatus";
+    private static final String ACTION_UPDATE_STATUS = "_updateStatus";
     private static final String ACTION_BACK = "_backToForm";
 
     private static final String ATTR_FB_ACCESS_TOKEN = "AttributeFacebookAccessToken";
@@ -111,7 +111,9 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         }
 
         PortletURL url = response.createActionURL();
-        url.setParameter(ActionRequest.ACTION_NAME, ACTION_SEND_STATUS);
+        url.setParameter(ActionRequest.ACTION_NAME, ACTION_UPDATE_STATUS);
+
+        // TODO: jsp?
         out.println("<h3>Publish some content to your facebook wall</h3>");
         out.println("<div style=\"font-size: 13px;\">Either message or link are required fields</div><br>");
         out.println("<form method=\"POST\" action=\"" + url + "\">");
@@ -128,13 +130,13 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         out.println("<input type=\"submit\" value=\"submit\" />");
         out.println("</form>");
 
-        // Save FB AccessToken to session, so it could be used in actionSendStatus
+        // Save FB AccessToken to session, so it could be used in actionUpdateStatus
         request.getPortletSession().setAttribute(ATTR_FB_ACCESS_TOKEN, accessToken);
     }
 
 
-    @ProcessAction(name = ACTION_SEND_STATUS)
-    public void actionSendStatus(ActionRequest aReq, ActionResponse aResp) throws IOException {
+    @ProcessAction(name = ACTION_UPDATE_STATUS)
+    public void actionUpdateStatus(ActionRequest aReq, ActionResponse aResp) throws IOException {
         PortletSession session = aReq.getPortletSession();
 
         String message = getParameterAndSaveItToSession("message", aReq, session);

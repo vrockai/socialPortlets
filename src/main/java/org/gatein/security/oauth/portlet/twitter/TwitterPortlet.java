@@ -75,11 +75,6 @@ public class TwitterPortlet extends AbstractSocialPortlet<TwitterAccessTokenCont
         htmlResponse.append("Last tweet: " + twitterUser.getStatus().getText() + "<br>");
         htmlResponse.append("<img src=\"" + twitterUser.getProfileImageURL() + "\" alt=\"Your picture\" /><br>");
 
-//        htmlResponse.append("<hr>");
-//
-//        htmlResponse.append("Access Token: " + accessToken.getAccessToken() + "<br>");
-//        htmlResponse.append("Access Token Secret: " + accessToken.getAccessTokenSecret() + "<br>");
-
         writeAndFinishResponse(htmlResponse.toString(), response);
     }
 }
