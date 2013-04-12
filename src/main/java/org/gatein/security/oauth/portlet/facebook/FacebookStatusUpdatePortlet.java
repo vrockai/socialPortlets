@@ -88,7 +88,7 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
             Status status = Status.valueOf(statusParam);
             if (status == Status.SUCCESS) {
                 out.println("Your message has been successfully published on your Facebook wall!<br>");
-            } else if (status == Status.SUCCESS) {
+            } else if (status == Status.NOT_SPECIFIED_MESSAGE_OR_LINK) {
                 out.println("Either message or link needs to be specified!<br>");
             } else if (status == Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE) {
                 String neededScope = "publish_stream";
