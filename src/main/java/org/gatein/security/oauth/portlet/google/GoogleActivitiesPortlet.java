@@ -42,13 +42,14 @@ import com.google.api.services.plus.model.CommentFeed;
 import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
+import org.gatein.security.oauth.google.GoogleAccessTokenContext;
 import org.gatein.security.oauth.google.GoogleProcessor;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenResponse> {
+public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessTokenContext> {
 
     private GoogleProcessor googleProcessor;
 
@@ -60,14 +61,14 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
 
     @Override
-    protected OAuthProviderType<GoogleTokenResponse> getOAuthProvider() {
+    protected OAuthProviderType<GoogleAccessTokenContext> getOAuthProvider() {
         return getOauthProviderTypeRegistry().getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE);
     }
 
 
     // See https://developers.google.com/+/api/latest/activities/list for details
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, GoogleTokenResponse accessToken) throws PortletException, IOException {
+    protected void handleRender(RenderRequest request, RenderResponse response, GoogleAccessTokenContext accessToken) throws PortletException, IOException {
         PrintWriter writer = response.getWriter();
 
         final Plus service = googleProcessor.getPlusService(accessToken);
