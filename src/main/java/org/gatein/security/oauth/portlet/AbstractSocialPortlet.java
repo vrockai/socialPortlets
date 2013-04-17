@@ -23,6 +23,7 @@ import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.webui.util.Util;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
+import org.gatein.security.oauth.common.AccessTokenContext;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.data.SocialNetworkService;
@@ -31,7 +32,7 @@ import org.gatein.security.oauth.registry.OAuthProviderTypeRegistry;
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
+public abstract class AbstractSocialPortlet<T extends AccessTokenContext> extends GenericPortlet {
 
     public static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
