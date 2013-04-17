@@ -23,7 +23,7 @@
 <portlet:defineObjects />
 
 <div class="googlePortlet socialPortlet">
-    <h3 class="googleHeader">User</h3>
+    <h3 class="googleHeader socialHeader">User</h3>
     <img class="googleUserImage" src="${googleUserInfo.picture}?size=100" title="${googleUserInfo.name}" />
     <div class="googleUserInfo">
         <div class="googleUserProperty"><span class="googleUserPropertyKey">Given name:</span><span class="googleUserPropertyValue">${googleUserInfo.givenName}</span></div>

@@ -22,7 +22,7 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 <portlet:defineObjects />
 <div class="googlePortlet socialPortlet">
-<h3 class="googleHeader">Activities</h3>
+<h3 class="googleHeader socialHeader">Activities</h3>
 <c:forEach var="gab" items="${googleActivityBeanList}">
     <div class='googleActivity'>
         <div class="activityDetails">

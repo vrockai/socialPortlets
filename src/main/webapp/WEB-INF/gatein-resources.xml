@@ -5,16 +5,9 @@
 
   <portlet-skin>
     <application-name>gatein-social-portlets</application-name>
-    <portlet-name>GoogleActivitiesPortlet</portlet-name>
+    <portlet-name>FacebookUserInfoPortlet</portlet-name>
     <skin-name>Default</skin-name>
-    <css-path>/css/main.css</css-path>
-  </portlet-skin>
-
-  <portlet-skin>
-    <application-name>gatein-social-portlets</application-name>
-    <portlet-name>GoogleFriendsPortlet</portlet-name>
-    <skin-name>Default</skin-name>
-    <css-path>/css/main.css</css-path>
+    <css-path>/css/fb.css</css-path>
   </portlet-skin>
 
   <portlet-skin>
@@ -29,6 +22,34 @@
     <portlet-name>FacebookStatusUpdatePortlet</portlet-name>
     <skin-name>Default</skin-name>
     <css-path>/css/fbStatus.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>gatein-social-portlets</application-name>
+    <portlet-name>TwitterPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/css/twitter.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>gatein-social-portlets</application-name>
+    <portlet-name>GoogleUserInfoPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/css/gplus.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>gatein-social-portlets</application-name>
+    <portlet-name>GoogleActivitiesPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/css/gplus.css</css-path>
+  </portlet-skin>
+
+  <portlet-skin>
+    <application-name>gatein-social-portlets</application-name>
+    <portlet-name>GoogleFriendsPortlet</portlet-name>
+    <skin-name>Default</skin-name>
+    <css-path>/css/gplus.css</css-path>
   </portlet-skin>
 
 </gatein-resources>

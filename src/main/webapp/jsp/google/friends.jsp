@@ -23,7 +23,7 @@
 <portlet:defineObjects/>
 
 <div class="googlePortlet socialPortlet">
-    <h3 class="googleHeader">Friends</h3>
+    <h3 class="googleHeader socialHeader">Friends</h3>
 
     <div class="socialFriends">
         <!--
