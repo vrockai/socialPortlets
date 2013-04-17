@@ -6,33 +6,47 @@
    http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
 
   <portlet>
+    <description>Facebook User Info Portlet</description>
     <portlet-name>FacebookUserInfoPortlet</portlet-name>
+    <display-name>Facebook User Info Portlet</display-name>
     <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookUserInfoPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Facebook User Info Portlet</title>
+      <short-title>FB UserInfo Portlet</short-title>
+      <keywords>Social</keywords>
     </portlet-info>
   </portlet>
+
   <portlet>
+    <description>Facebook Friends Portlet</description>
     <portlet-name>FacebookFriendsPortlet</portlet-name>
+    <display-name>Facebook Friends Portlet</display-name>
     <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookFriendsPortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Facebook Friends Portlet</title>
+      <short-title>FB Friends Portlet</short-title>
+      <keywords>Social</keywords>
     </portlet-info>
   </portlet>
+
   <portlet>
+    <description>Facebook Status Update Portlet</description>
     <portlet-name>FacebookStatusUpdatePortlet</portlet-name>
+    <display-name>Facebook Status Update Portlet</display-name>
     <portlet-class>org.gatein.security.oauth.portlet.facebook.FacebookStatusUpdatePortlet</portlet-class>
     <supports>
       <mime-type>text/html</mime-type>
     </supports>
     <portlet-info>
       <title>Facebook Status Update Portlet</title>
+      <short-title>FB Status Portlet</short-title>
+      <keywords>Social</keywords>
     </portlet-info>
   </portlet>
 

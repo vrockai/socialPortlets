@@ -25,8 +25,11 @@ package org.gatein.security.oauth.portlet.google;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -80,16 +83,21 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
         }.sendRequest();
 
+        List<GoogleActivityBean> googleActivityBeanList = new ArrayList<GoogleActivityBean>();
+
         // TODO: jsp?
         if (activityFeed != null) {
-            writer.println("<h2>Your last google+ activities</h2>");
+            //writer.println("<h2>Your last google+ activities</h2>");
             for (final Activity activity : activityFeed.getItems()) {
+
+                GoogleActivityBean gab = new GoogleActivityBean(activity);
+                /*
                 Activity.PlusObject activityObject = activity.getObject();
                 writer.println("<h3>" + activity.getTitle() + "</h3>");
                 writer.println("Likes: <b>" + activityObject.getPlusoners().getTotalItems() + "</b>");
                 writer.println(", Resharers: <b>" + activityObject.getResharers().getTotalItems() + "</b>, ");
                 writer.println("<a href=\"" + activity.getUrl() + "\" style=\"color: blue;\">Activity details</a><br><br>");
-
+                */
                 CommentFeed comments = new GoogleRequest<CommentFeed>(response, "https://www.googleapis.com/auth/plus.login") {
 
                     @Override
@@ -99,6 +107,10 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
 
                 }.sendRequest();
 
+                gab.setCommentFeed(comments);
+
+                googleActivityBeanList.add(gab);
+                /*
                 if (comments != null) {
                     int counter = 1;
                     for (Comment comment : comments.getItems()) {
@@ -111,7 +123,12 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleTokenRe
                 }
 
                 writer.println("<hr>");
+                */
             }
         }
+
+        request.setAttribute("googleActivityBeanList", googleActivityBeanList);
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/google/activities.jsp");
+        prd.include(request, response);
     }
 }

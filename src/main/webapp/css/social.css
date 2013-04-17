@@ -1,0 +1,246 @@
+/* Common stuff */
+
+.socialPortlet {
+    padding: 10px;
+    font-size: 12px;
+}
+
+.socialHeader {
+    background: no-repeat scroll 0 0 transparent;
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 24px;
+    min-height: 32px;
+    padding-left: 42px;
+}
+
+/* Activities/Statuses */
+
+.activityHeader {
+    font-size: 12px;
+}
+
+.socialActivity {
+    margin-bottom: 20px;
+}
+
+.activityDetails, .activityComments {
+    padding: 10px 10px 0;
+    background: #f5f5f5;
+}
+
+.activityDetails {
+    border-radius: 10px 10px 0 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activityComments {
+    /* border: 1px solid black; */
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    padding: 0 10px;
+    background: #fafafa;
+}
+
+.activityPopularity {
+    text-align: right;
+}
+
+.activityLikes, .activityShares {
+    display: inline-block;
+    margin: 5px;
+}
+
+.activityLikes, .activityShares {
+    color: #a0a0a0;
+    font-weight: bold;
+}
+
+.commentDetails {
+    padding: 10px 0;
+    border-top: 1px solid #FFFFFF;
+    border-bottom: 1px solid #F0F0F0;
+}
+
+.activityComments .commentDetails:first-child {
+    border-top: none;
+}
+
+.activityComments .commentDetails:last-child {
+    border-bottom: none;
+}
+
+.commentAuthor {
+    font-weight: bold;
+    color: #a0a0a0;
+}
+
+.commentContent {
+    margin-top: 5px;
+    color: #505050;
+
+}
+
+.commentAuthor, .commentLikes {
+    display: inline-block;
+}
+
+.commentLikes {
+    color: red;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.activityShares {
+    background: url("../img/gshare.png") no-repeat;
+    height: 12px;
+    padding-left: 15px;
+}
+
+.activityLink {
+    color: #A0A0A0;
+}
+
+/* Friends */
+
+.socialFriends {
+    margin: 10px 0;
+}
+
+.socialFriendsPages {
+    margin: 10px 0;
+}
+
+.socialFriendsPages a {
+    background: #f0f0f0;
+    border-radius: 5px;
+    margin: 3px 1px;
+    padding:5px;
+    display: inline-block;
+    font-size:10px;
+    border: 1px solid #e0e0e0;
+}
+
+.socialFriendsPages a:hover {
+    background: #ccc;
+    color: white;
+    border-color: #bbb;
+}
+
+.socialFriendItem > img {
+    border-radius: 5px;
+    margin: 5px 5px 5px 0;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.05)
+}
+
+.socialFriendItem:hover > img {
+    box-shadow: 0 0 10px #ffc431;
+}
+
+.socialMessageContent a {
+    color: black;
+    text-decoration: underline;
+}
+
+/* Vertical Form */
+
+.socialUserPropertyKey {
+    color: #666;
+    font-style: italic;
+}
+
+.socialUserPropertyValue {
+    margin-left: 5px;
+}
+
+.socialUserPropertyKey, .googleUserPropertyValue {
+    font-size: 14px;
+}
+
+.socialUserProperty {
+
+}
+.socialUserInfo {
+    display: inline-block;
+}
+
+.socialUserPropertyKey {
+    color: #666;
+    font-style: italic;
+}
+
+.socialUserPropertyValue {
+    margin-left: 5px;
+}
+
+.socialUserPropertyKey, .socialUserPropertyValue {
+    font-size: 14px;
+}
+
+.socialUserInfoImage {
+    border-radius: 5px;
+    margin: 0px 15px 5px 0;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.1);
+    float: left;
+}
+
+.socialForm {
+    background: #f5f5f5;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.socialForm label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.socialFormHint {
+    display: block;
+    font-size: 12px;
+    width: 70%;
+    padding-left:20%;
+    margin-left:5px;
+    color: #aaa;
+    font-style: italic;
+    display: inline-block;
+}
+
+.socialForm fieldset {
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.socialForm label span {
+    font-size: 14px;
+    width: 20%;
+    color: #666;
+    font-style: italic;
+    display: inline-block;
+}
+
+.socialForm .socialStatusFormInput {
+    width: 70%;
+}
+
+.socialForm .socialFormSubmit {
+    margin-left:20%;
+}
+
+.socialInputReq:after {
+    color: red;
+    content: "*";
+}
+
+/* Horizontal form */
+
+.socialForm.horizontalForm label {
+    display: inline;
+}
+
+.socialForm.horizontalForm label span {
+    display: inline;
+    width: auto;
+    margin-right: 5px;
+}

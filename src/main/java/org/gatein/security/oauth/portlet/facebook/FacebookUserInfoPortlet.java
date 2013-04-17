@@ -27,10 +27,10 @@ package org.gatein.security.oauth.portlet.facebook;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.portlet.GenericPortlet;
 import javax.portlet.PortletException;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.PortletRequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
@@ -66,8 +66,11 @@ public class FacebookUserInfoPortlet extends AbstractSocialPortlet<FacebookAcces
 
 
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
+    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
         FacebookPrincipal principal = gtnFacebookProcessor.getPrincipal(accessToken.getAccessToken());
-        writeAndFinishResponse(principal.toString(), response);
+        //writeAndFinishResponse(principal.toString(), response);
+        request.setAttribute("googleUserInfo", principal);
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/userinfo.jsp");
+        prd.include(request, response);
     }
 }

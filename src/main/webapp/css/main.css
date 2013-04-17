@@ -1,0 +1,61 @@
+
+
+.googlePaginatorLeft {
+
+}
+
+.googlePaginatorRight {
+    position: absolute;
+    right: 0;
+}
+
+.googlePaginator {
+    position: relative;
+    margin: 10px 0;
+}
+
+.googleFriends {
+
+}
+
+.facebookUserImage {
+
+}
+
+.googleUserProperty {
+
+}
+
+.googleUserPropertyKey {
+    color: #666;
+    font-style: italic;
+}
+
+.googleUserPropertyValue {
+    margin-left: 5px;
+}
+
+.googleUserPropertyKey, .googleUserPropertyValue {
+    font-size: 14px;
+}
+
+.googleUserImage {
+    border-radius: 5px;
+    margin: 0px 15px 5px 0;
+    box-shadow: 2px 2px 1px rgba(0, 0, 0, 0.1);
+    float: left;
+}
+
+.socialMessage {
+    padding: 10px;
+}
+
+.socialMessageHeader {
+    color: #E66A1F;
+    display: inline;
+}
+
+.socialMessageContent {
+    color: #555;
+    margin-left: 5px;
+}

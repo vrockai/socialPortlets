@@ -11,6 +11,7 @@ import javax.portlet.PortletRequest;
 import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.ProcessAction;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -32,7 +33,7 @@ import org.gatein.security.oauth.registry.OAuthProviderTypeRegistry;
  */
 public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
 
-    protected static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
+    public static final String ACTION_OAUTH_REDIRECT = "actionOAuthRedirect";
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -106,14 +107,16 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
         String username = request.getRemoteUser();
 
         if (username == null) {
-            writeAndFinishResponse("No content available for anonymous user. You need to login first", response);
+            //writeAndFinishResponse("No content available for anonymous user. You need to login first", response);
+            PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/error/anonymous.jsp");
+            prd.include(request, response);
             return;
         }
 
         OAuthProviderType<T> oauthProviderType = getOAuthProvider();
 
 
-        T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, response);
+        T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, request, response);
         if (accessToken != null) {
             if (trace) {
                 log.trace("Invoking handleRender with accessToken " + accessToken);
@@ -175,8 +178,8 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
     }
 
 
-    private T getAccessTokenOrRedirectToObtainIt(String username, OAuthProviderType<T> oauthProviderType, RenderResponse response)
-            throws IOException {
+    private T getAccessTokenOrRedirectToObtainIt(String username, OAuthProviderType<T> oauthProviderType, RenderRequest request, RenderResponse response)
+            throws IOException, PortletException {
         T accessToken = socialNetworkService.getOAuthAccessToken(oauthProviderType, username);
 
         if (accessToken == null) {
@@ -184,8 +187,12 @@ public abstract class AbstractSocialPortlet<T> extends GenericPortlet {
             PortletURL actionURL = response.createActionURL();
             actionURL.setParameter(ActionRequest.ACTION_NAME, ACTION_OAUTH_REDIRECT);
 
+            PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/error/token.jsp");
+            prd.include(request, response);
+            /*
             writeAndFinishResponse(oauthProviderType.getFriendlyName() + " accessToken not available for you. Click <a href=\"" +
                     actionURL + "\" style=\"color: blue;\">here</a> to link your " + portalName + " account with " + oauthProviderType.getFriendlyName() + " account", response);
+                    */
         }
 
         return accessToken;

@@ -1,0 +1,17 @@
+@import url("social.css");
+@import url("fb.css");
+
+.facebookActionStatus {
+    background: #f0f0f0;
+    border-radius: 10px;
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 12px;
+    margin: 5px 0;
+    padding: 10px;
+}
+
+.facebookActionStatus a {
+    color: blue;
+    text-decoration: underline;
+}

@@ -1,0 +1,8 @@
+.googleHeader {
+    background: url("../img/gplus-32.png") no-repeat scroll 0 0 transparent;
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 24px;
+    min-height: 32px;
+    padding-left: 42px;
+}

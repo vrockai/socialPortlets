@@ -31,7 +31,7 @@ import java.util.Map;
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-class PaginationState implements Serializable {
+public class PaginationState implements Serializable {
 
     private int currentPage = 1;
     private Map<Integer, String> paginationMapping = new HashMap<Integer, String>();

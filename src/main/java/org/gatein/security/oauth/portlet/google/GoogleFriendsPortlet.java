@@ -28,11 +28,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
+import javax.portlet.RenderRequest;
+import javax.portlet.RenderResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
-import javax.portlet.RenderRequest;
-import javax.portlet.RenderResponse;
+import javax.portlet.PortletRequestDispatcher;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.Plus;
@@ -112,40 +113,23 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleTokenRespo
         if (peopleFeed != null) {
             List<Person> people = peopleFeed.getItems();
 
-            PrintWriter writer = response.getWriter();
-            writer.println("<h2>Your google+ friends</h2>");
-            writer.println("Total number of friends: " + peopleFeed.getTotalItems() + "<br>");
-
-            for (Person person : people) {
-                String displayName = person.getDisplayName();
-                String imageURL = person.getImage().getUrl();
-                String personUrl = person.getUrl();
-
-                writer.println("<a href=\"" + personUrl + "\"><img src=\"" + imageURL + "\" title=\"" + displayName + "\" /></a>");
-            }
+            request.setAttribute("googleFriendsList", peopleFeed);
+            request.setAttribute("pgState", pgState);
 
             // Obtain next token to session if it's available
             String nextPageToken = peopleFeed.getNextPageToken();
-            int currentPage = pgState.getCurrentPage();
 
-            writer.println("<br>Current page: " + currentPage + "<br>");
-            // Show link for previous page
-            if (currentPage > 1) {
-                // TODO: ajax...
-                PortletURL portletURL = response.createRenderURL();
-                portletURL.setParameter(PARAM_PAGE, PREV);
-                writer.println("<a href=\"" + portletURL + "\" style=\"color: blue; \">Previous</a> ");
-            }
             // Show link for next page
             if (nextPageToken != null) {
                 // TODO: ajax...
                 pgState.setTokenForPage(pgState.getCurrentPage() + 1, nextPageToken);
-                PortletURL portletURL = response.createRenderURL();
-                portletURL.setParameter(PARAM_PAGE, NEXT);
-                writer.println("<a href=\"" + portletURL + "\" style=\"color: blue; \">Next</a>");
             }
 
             session.setAttribute(ATTR_PAGINATION_CONTEXT, pgState);
         }
+
+
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/google/friends.jsp");
+        prd.include(request, response);
     }
 }

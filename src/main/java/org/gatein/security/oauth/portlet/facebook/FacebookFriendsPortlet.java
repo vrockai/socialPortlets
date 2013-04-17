@@ -31,6 +31,8 @@ import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.ProcessAction;
@@ -59,11 +61,11 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     private static final String ATTR_FRIENDS_COUNT = "friendsCount";
     private static final String PARAM_PAGE = "_page";
     private static final String PARAM_PERSON_ID = "_personID";
-    private static final String PARAM_USER_FILTER = "_userFilter";
+    public static final String PARAM_USER_FILTER = "_userFilter";
 
     private static final int ITEMS_PER_PAGE = 10;
 
-    private static final String ACTION_USER_FILTER = "_actionUserFilter";
+    public static final String ACTION_USER_FILTER = "_actionUserFilter";
     private static final String BUTTON_TRIGGER_FILTER = "triggerFilter";
     private static final String BUTTON_CANCEL_FILTER = "cancelFilter";
 
@@ -89,41 +91,39 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         return getOauthProviderTypeRegistry().getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK);
     }
 
-
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
+    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
         PortletSession session = request.getPortletSession();
-        PrintWriter out = response.getWriter();
+
+        FacebookBean fb = new FacebookBean();
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessToken.getAccessToken());
 
         // Obtain info about "me" including picture and render them
         UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
-        renderPerson(response, out, me);
-        out.println("<hr>");
 
-        out.println("<table border><tr><td width=\"50%\" style=\"vertical-align: top\">");
-        out.println("<h3>My friends</h3>");
+        String friendId = request.getParameter(PARAM_PERSON_ID);
+        if (friendId != null) {
+            FacebookUserBean ffb = displayStatusOfPerson(friendId, facebookClient, me, accessToken, response);
+            request.setAttribute("fbFriend", ffb);
+        }
+
+        FacebookUserBean fbMe = new FacebookUserBean(me);
 
         String filter = (String)session.getAttribute(PARAM_USER_FILTER);
         List<String> idsOfFriendsToDisplay;
+
         if (filter != null) {
             idsOfFriendsToDisplay = getIdsOfFilteredFriends(filter, facebookClient);
         } else {
-            idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient, out);
+            idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient);
+            int friendsCount = getFriendsCount(session, facebookClient);
+            fbMe.setFriendsNumber(friendsCount);
+            fb.setCurrentPageNumber(getCurrentPageNumber(request, session));
+            fb.setFriendPaginatorUrls(getPaginatorUrls(friendsCount,response));
         }
 
-        // Render form with user filter
-        PortletURL userFilterURL = response.createActionURL();
-        userFilterURL.setParameter(ActionRequest.ACTION_NAME, ACTION_USER_FILTER);
-        out.println("<form action=\"" + userFilterURL + "\" method=\"POST\">");
-        String tmp = filter==null ? "" : " value=\"" + filter + "\"";
-        out.println("Filter: <input name=\"" + PARAM_USER_FILTER + "\"" + tmp + " />");
-        out.println("<input type=\"submit\" name=\"" + BUTTON_TRIGGER_FILTER + "\" value=\"Submit Filter\" />");
-        out.println("<input type=\"submit\" name=\"" + BUTTON_CANCEL_FILTER + "\" value=\"Cancel Filter\" /><br>");
-        out.println("</form>");
-
-        out.println("<br><br><hr><br>");
+        List<FacebookUserBean> fbFriends = new ArrayList<FacebookUserBean>();
 
         // Render friends with their pictures
         if (idsOfFriendsToDisplay.size() > 0) {
@@ -133,33 +133,58 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             for (String id : idsOfFriendsToDisplay) {
                 JsonObject current = friendsResult.getJsonObject(id);
                 UserWithPicture friend = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
-
-                renderPerson(response, out, friend);
-                out.println("<br>");
+                fbFriends.add(new FacebookUserBean(friend));
             }
         }
-        out.println("</td><td style=\"vertical-align: top\">");
 
-        // Render
-        String friendId = request.getParameter(PARAM_PERSON_ID);
-        if (friendId != null) {
-            displayStatusOfPerson(friendId, out, facebookClient, me, accessToken, response);
-        }
-        out.println("</td></tr></table>");
+        request.setAttribute("fbBean", fb);
+        request.setAttribute("fbMe", fbMe);
+        request.setAttribute("fbFriends", fbFriends);
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/friends.jsp");
+        prd.include(request, response);
     }
 
-
-    private String getLikersText(List<NamedFacebookType> likers) {
-        StringBuilder builder = new StringBuilder();
-        for (NamedFacebookType like : likers) {
-            builder.append(like.getName() + "\n");
+    private int getFriendsCount(PortletSession session, FacebookClient facebookClient){
+        Integer friendsCount = (Integer)session.getAttribute(ATTR_FRIENDS_COUNT);
+        if (friendsCount == null) {
+            Connection<NamedFacebookType> myFriends = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
+            friendsCount = myFriends.getData().size();
+            session.setAttribute(ATTR_FRIENDS_COUNT, friendsCount);
         }
-        return builder.toString();
+        return friendsCount;
     }
 
+    private int getCurrentPageNumber(RenderRequest request, PortletSession session){
+        Integer currentPage;
+        if (request.getParameter(PARAM_PAGE) != null) {
+            currentPage = Integer.parseInt(request.getParameter(PARAM_PAGE));
+            session.setAttribute(PARAM_PAGE, currentPage);
+        } else {
+            currentPage = (Integer)session.getAttribute(PARAM_PAGE);
+        }
+        if (currentPage == null) {
+            currentPage = 1;
+        }
+        return currentPage;
+    }
+
+    private List<String> getPaginatorUrls(int friendsCount, RenderResponse response){
+
+        Integer pageCount = ((friendsCount-1) / ITEMS_PER_PAGE) + 1;
+
+        List<String> urls = new ArrayList<String>();
+
+        for (int i=1 ; i<=pageCount ; i++) {
+            PortletURL url = response.createRenderURL();
+            url.setParameter(PARAM_PAGE,  String.valueOf(i));
+            urls.add(url.toString());
+        }
+
+        return urls;
+    }
 
     private List<String> getIdsOfPaginatedFriends(RenderRequest request, RenderResponse response, PortletSession session,
-                                                  FacebookClient facebookClient, PrintWriter out) {
+                                                  FacebookClient facebookClient) {
         // Count total number of friends
         Integer friendsCount = (Integer)session.getAttribute(ATTR_FRIENDS_COUNT);
         if (friendsCount == null) {
@@ -184,13 +209,10 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         Integer indexStart = (currentPage - 1) * ITEMS_PER_PAGE;
         List<NamedFacebookType> friendsToDisplay = facebookClient.fetchConnection("me/friends", NamedFacebookType.class, Parameter.with("offset", indexStart), Parameter.with("limit", ITEMS_PER_PAGE)).getData();
 
-        out.println("Count of friends: " + friendsCount + "<br>");
-        out.println("Current page: " + currentPage + "<br>");
-        out.println("Select page: ");
         for (int i=1 ; i<=pageCount ; i++) {
             PortletURL url = response.createRenderURL();
             url.setParameter(PARAM_PAGE,  String.valueOf(i));
-            out.print("<a style=\"color: blue;\" href=\"" + url + "\">" + i + "</a> ");
+
         }
 
         // Collect IDS of friends to display
@@ -201,7 +223,6 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
         return ids;
     }
-
 
     // Pagination is skipped if user filtering is enabled
     private List<String> getIdsOfFilteredFriends(String filter, FacebookClient facebookClient) {
@@ -218,50 +239,27 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         return result;
     }
 
-
-    private void displayStatusOfPerson(String friendId, PrintWriter out, FacebookClient facebookClient, NamedFacebookType me, FacebookAccessTokenContext accessTokenContext, RenderResponse response) {
+    private FacebookUserBean displayStatusOfPerson(String friendId, FacebookClient facebookClient, NamedFacebookType me, FacebookAccessTokenContext accessTokenContext, RenderResponse response) {
         Connection<StatusMessage> statusMessageConnection = facebookClient.fetchConnection(friendId + "/statuses", StatusMessage.class, Parameter.with("limit", 5));
         List<StatusMessage> statuses = statusMessageConnection.getData();
+
+        FacebookUserBean ffb = new FacebookUserBean();
+        ffb.setId(friendId);
+        ffb.setScope(false);
+        ffb.setStatuses(statuses);
 
         if (statuses.size() == 0) {
             // Different scope is needed for me and different for my friends
             String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
 
             if (accessTokenContext.isScopeAvailable(neededScope)) {
-                out.println("This user doesn't have any public messages");
-            } else {
-                out.println("<b>WARNING: </b>You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope: <b>" + neededScope + "</b><br>");
-
-                // Create URL for start OAuth2 flow with custom scope added
-                PortletURL actionURL = response.createActionURL();
-                actionURL.setParameter(ActionRequest.ACTION_NAME, AbstractSocialPortlet.ACTION_OAUTH_REDIRECT);
-                actionURL.setParameter(OAuthConstants.PARAM_CUSTOM_SCOPE, neededScope);
-                out.println("Click <a style=\"color: blue;\" href=\"" + actionURL + "\">here</a> to fix it<br>");
+                ffb.setScope(true);
             }
         } else {
             NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
-            out.println("<h3>" + currentFriendToDisplay.getName() + "</h3>");
-            for (StatusMessage statusMessage : statuses) {
-                out.println("<b>Status message: </b>" + statusMessage.getMessage() + "<br>");
-                out.println("<div style=\"font-size: 13px;\">");
-                out.println("Time: " + statusMessage.getUpdatedTime() + " - ");
-                out.println("<img src=\"TODO:some-thumbs-picture.gif\" alt=\"Likes: " + statusMessage.getLikes().size() + "\" title=\"" + getLikersText(statusMessage.getLikes()) + "\" /></div><br><hr>");
-
-                List<Comment> comments = statusMessage.getComments();
-                out.println("<b>Comments: </b><br>");
-                for (Comment comment : comments) {
-                    out.println("<i>" + comment.getFrom().getName() + "</i>: " + comment.getMessage() + "<br>");
-                    out.println("<div style=\"font-size: 11px;\">Time: " + comment.getCreatedTime() + " - Likes: " + comment.getLikeCount() + "</div><br>");
-                }
-                out.println("<br><br><hr>");
-            }
+            ffb.setName(currentFriendToDisplay.getName());
         }
-    }
 
-
-    private void renderPerson(RenderResponse response, PrintWriter out, UserWithPicture personToRender) {
-        PortletURL myUrlForPersonDetail = response.createRenderURL();
-        myUrlForPersonDetail.setParameter(PARAM_PERSON_ID, personToRender.getId());
-        out.println("<img src=\"" + personToRender.getPicture().getData().getUrl() + "\" /><a style=\"color: blue;\" href=\"" + myUrlForPersonDetail + "\">" + personToRender.getName() + "</a><br>");
+        return ffb;
     }
 }

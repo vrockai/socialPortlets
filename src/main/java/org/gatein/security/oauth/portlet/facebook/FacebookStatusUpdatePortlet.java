@@ -25,12 +25,13 @@
 package org.gatein.security.oauth.portlet.facebook;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.portlet.ActionRequest;
 import javax.portlet.ActionResponse;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.PortletSession;
 import javax.portlet.PortletURL;
 import javax.portlet.ProcessAction;
@@ -53,14 +54,14 @@ import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
  */
 public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookAccessTokenContext> {
 
-    private static final String ACTION_UPDATE_STATUS = "_updateStatus";
-    private static final String ACTION_BACK = "_backToForm";
+    public static final String ACTION_UPDATE_STATUS = "_updateStatus";
+    public static final String ACTION_BACK = "_backToForm";
 
     private static final String ATTR_FB_ACCESS_TOKEN = "AttributeFacebookAccessToken";
-    private static final String RENDER_PARAM_STATUS = "renderParamStatus";
-    private static final String RENDER_PARAM_ERROR_MESSAGE = "renderParamErrorMessage";
+    public static final String RENDER_PARAM_STATUS = "renderParamStatus";
+    public static final String RENDER_PARAM_ERROR_MESSAGE = "renderParamErrorMessage";
 
-    private enum Status {
+    public enum Status {
         SUCCESS,
         NOT_SPECIFIED_MESSAGE_OR_LINK,
         FACEBOOK_ERROR_INSUFFICIENT_SCOPE,
@@ -78,60 +79,14 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
 
 
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException {
-        PrintWriter out = response.getWriter();
+    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
+        java.io.PrintStream out = System.out;//response.getWriter();
         PortletSession session = request.getPortletSession();
-
-        // Process status
-        String statusParam = request.getParameter(RENDER_PARAM_STATUS);
-        if (statusParam != null) {
-            Status status = Status.valueOf(statusParam);
-            if (status == Status.SUCCESS) {
-                out.println("Your message has been successfully published on your Facebook wall!<br>");
-            } else if (status == Status.NOT_SPECIFIED_MESSAGE_OR_LINK) {
-                out.println("Either message or link needs to be specified!<br>");
-            } else if (status == Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE) {
-                String neededScope = "publish_stream";
-                out.println("You have insufficient privileges (Facebook scope) to publish message on your FB wall. Your access token need to have scope: <b>" + neededScope + "</b><br>");
-
-                // Create URL for start OAuth2 flow with custom scope added
-                PortletURL actionURL = response.createActionURL();
-                actionURL.setParameter(ActionRequest.ACTION_NAME, AbstractSocialPortlet.ACTION_OAUTH_REDIRECT);
-                actionURL.setParameter(OAuthConstants.PARAM_CUSTOM_SCOPE, neededScope);
-                out.println("Click <a style=\"color: blue;\" href=\"" + actionURL + "\">here</a> to fix it<br>");
-            } else if (status == Status.FACEBOOK_ERROR_OTHER) {
-                String errorMessage = request.getParameter(RENDER_PARAM_ERROR_MESSAGE);
-                out.println("Error occured during facebook processing. Error details: " + errorMessage + "<br>");
-            }
-
-            PortletURL backURL = response.createActionURL();
-            backURL.setParameter(ActionRequest.ACTION_NAME, ACTION_BACK);
-            out.println("<a style=\"color: blue;\" href=\"" + backURL + "\">Back</a><br>");
-            return;
-        }
-
-        PortletURL url = response.createActionURL();
-        url.setParameter(ActionRequest.ACTION_NAME, ACTION_UPDATE_STATUS);
-
-        // TODO: jsp?
-        out.println("<h3>Publish some content to your facebook wall</h3>");
-        out.println("<div style=\"font-size: 13px;\">Either message or link are required fields</div><br>");
-        out.println("<form method=\"POST\" action=\"" + url + "\">");
-        out.println("<table>");
-        out.println(renderInput("message", true, session));
-        out.println("<tr><td></td><td></td></tr>");
-        out.println("<tr><td colspan=2><div style=\"font-size: 13px;\">Other parameters, which are important only if you want to publish some link</div></td></tr>");
-        out.println(renderInput("link", true, session));
-        out.println(renderInput("picture", false, session));
-        out.println(renderInput("name", false, session));
-        out.println(renderInput("caption", false, session));
-        out.println(renderInput("description", false, session));
-        out.println("</table>");
-        out.println("<input type=\"submit\" value=\"submit\" />");
-        out.println("</form>");
 
         // Save FB AccessToken to session, so it could be used in actionUpdateStatus
         request.getPortletSession().setAttribute(ATTR_FB_ACCESS_TOKEN, accessToken);
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/statusupdate.jsp");
+        prd.include(request, response);
     }
 
 
@@ -189,32 +144,12 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
                 aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
             }
         }
-
     }
 
     @ProcessAction(name = ACTION_BACK)
     public void actionBack(ActionRequest aReq, ActionResponse aResp) throws IOException {
         aResp.removePublicRenderParameter(RENDER_PARAM_STATUS);
         aResp.removePublicRenderParameter(RENDER_PARAM_ERROR_MESSAGE);
-    }
-
-
-    private String renderInput(String inputName, boolean required, PortletSession session) {
-        String label = inputName.substring(0, 1).toUpperCase() + inputName.substring(1);
-        StringBuilder result = new StringBuilder("<tr><td>" + label + ": </td><td><input name=\"").
-                append(inputName + "\"");
-
-        // Try to read value from session
-        String value = (String)session.getAttribute(inputName);
-        if (value != null) {
-            result.append(" value=\"" + value + "\"");
-        }
-
-        result.append(" />");
-        if (required) {
-            result = result.append(" *");
-        }
-        return result.append("</td></tr>").toString();
     }
 
     private boolean isEmpty(String message) {

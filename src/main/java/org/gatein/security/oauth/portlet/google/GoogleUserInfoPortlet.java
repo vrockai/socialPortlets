@@ -27,6 +27,7 @@ package org.gatein.security.oauth.portlet.google;
 import java.io.IOException;
 
 import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
@@ -70,14 +71,19 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleTokenResp
         }.sendRequest();
 
         if (uinfo != null) {
-            StringBuilder builder = new StringBuilder("Given name: " + uinfo.getGivenName())
+            request.setAttribute("googleUserInfo", uinfo);
+            StringBuilder builder = new StringBuilder("Given name: ").append(uinfo.getGivenName())
                     .append("<br>Family name: " + uinfo.getFamilyName())
                     .append("<br>Email: " + uinfo.getEmail())
                     .append("<br>Birthday: " + uinfo.getBirthday())
                     .append("<br>Gender: " + uinfo.getGender())
                     .append("<br>Locale: " + uinfo.getLocale())
                     .append("<br><img src=\"" + uinfo.getPicture() + "?size=100\" title=\"" + uinfo.getName() + "\" />");
-            writeAndFinishResponse(builder.toString(), response);
+            //writeAndFinishResponse(builder.toString(), response);
         }
+
+
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/google/userinfo.jsp");
+        prd.include(request, response);
     }
 }
