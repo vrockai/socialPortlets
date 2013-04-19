@@ -26,8 +26,8 @@
     <h3 class="googleHeader socialHeader">User</h3>
     <img class="googleUserImage" src="${googleUserInfo.picture}?size=100" title="${googleUserInfo.name}" />
     <div class="googleUserInfo">
-        <div class="googleUserProperty"><span class="googleUserPropertyKey">Given name:</span><span class="googleUserPropertyValue">${googleUserInfo.givenName}</span></div>
-        <div class="googleUserProperty"><span class="googleUserPropertyKey">Family name:</span><span class="googleUserPropertyValue">${googleUserInfo.familyName}</span></div>
+        <div class="googleUserProperty"><span class="googleUserPropertyKey">Given name:</span><span class="googleUserPropertyValue">${googleUserInfo.given_name}</span></div>
+        <div class="googleUserProperty"><span class="googleUserPropertyKey">Family name:</span><span class="googleUserPropertyValue">${googleUserInfo.family_name}</span></div>
         <div class="googleUserProperty"><span class="googleUserPropertyKey">Email:</span><span class="googleUserPropertyValue">${googleUserInfo.email}</span></div>
         <div class="googleUserProperty"><span class="googleUserPropertyKey">Birthday:</span><span class="googleUserPropertyValue">${googleUserInfo.birthday}</span></div>
         <div class="googleUserProperty"><span class="googleUserPropertyKey">Gender:</span><span class="googleUserPropertyValue">${googleUserInfo.gender}</span></div>

@@ -106,7 +106,7 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
 
         list.setPageToken(pgState.getTokenOfCurrentPage());
 
-        PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(response, REQUIRED_SCOPE) {
+        PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(request, response, getPortletContext(), getOAuthProvider(), REQUIRED_SCOPE) {
 
             @Override
             protected PeopleFeed execute() throws IOException {
@@ -126,7 +126,6 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
 
             // Show link for next page
             if (nextPageToken != null) {
-                // TODO: ajax...
                 pgState.setTokenForPage(pgState.getCurrentPage() + 1, nextPageToken);
             }
 

@@ -72,7 +72,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
         final Plus.Activities.List list  = service.activities().list("me", "public");
         list.setMaxResults(10L);
 
-        ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(response, REQUIRED_SCOPE) {
+        ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(request, response, getPortletContext(), getOAuthProvider(), REQUIRED_SCOPE) {
 
             @Override
             protected ActivityFeed execute() throws IOException {
@@ -83,12 +83,11 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
 
         List<GoogleActivityBean> googleActivityBeanList = new ArrayList<GoogleActivityBean>();
 
-        // TODO: jsp?
         if (activityFeed != null) {
             for (final Activity activity : activityFeed.getItems()) {
 
                 GoogleActivityBean gab = new GoogleActivityBean(activity);
-                CommentFeed comments = new GoogleRequest<CommentFeed>(response, REQUIRED_SCOPE) {
+                CommentFeed comments = new GoogleRequest<CommentFeed>(request, response, getPortletContext(), getOAuthProvider(), REQUIRED_SCOPE) {
 
                     @Override
                     protected CommentFeed execute() throws IOException {

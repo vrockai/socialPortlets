@@ -27,22 +27,42 @@ package org.gatein.security.oauth.portlet.google;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.portlet.PortletContext;
+import javax.portlet.PortletException;
+import javax.portlet.PortletRequestDispatcher;
+import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.restfb.exception.FacebookException;
+import org.gatein.common.logging.Logger;
+import org.gatein.common.logging.LoggerFactory;
+import org.gatein.security.oauth.common.OAuthConstants;
+import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.exception.OAuthException;
+import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
+import org.gatein.security.oauth.google.GoogleAccessTokenContext;
+import org.gatein.security.oauth.portlet.OAuthPortletFilter;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
 public abstract class GoogleRequest<T> {
 
+    protected final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final RenderRequest request;
     private final RenderResponse response;
+    private final PortletContext portletContext;
+    private final OAuthProviderType<GoogleAccessTokenContext> oauthProviderType;
     private final String requiredScope;
 
-    GoogleRequest(RenderResponse response, String requiredScope) {
+    GoogleRequest(RenderRequest request, RenderResponse response, PortletContext portletContext,
+                  OAuthProviderType<GoogleAccessTokenContext> oauthPrType, String requiredScope) {
+        this.request = request;
         this.response = response;
+        this.portletContext = portletContext;
+        this.oauthProviderType = oauthPrType;
         this.requiredScope = requiredScope;
     }
 
@@ -50,23 +70,28 @@ public abstract class GoogleRequest<T> {
     protected abstract T execute() throws IOException;
 
 
-    T sendRequest() throws IOException {
+    T sendRequest() throws PortletException, IOException {
+        String jspErrorPage;
+
         try {
             return execute();
         } catch (GoogleJsonResponseException googleEx) {
-            PrintWriter writer = response.getWriter();
-            writer.println("Error occured. Your accessToken is invalid or scope is insufficient. You will need scope: " + requiredScope + "<br><br>");
-            writer.println("Error details: " + googleEx.getDetails() + "<br><br>");
-            writer.println("See server log for more info<br><br>");
-            googleEx.printStackTrace();
-            return null;
+            String message = oauthProviderType.getFriendlyName() + " access token is invalid or scope is insufficient.";
+            if (requiredScope != null) {
+                message = message + "You will need scope: " + requiredScope + "<br>";
+                request.setAttribute(OAuthConstants.PARAM_CUSTOM_SCOPE, requiredScope);
+            }
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_ERROR_MESSAGE, message);
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_OAUTH_PROVIDER_TYPE, oauthProviderType);
+            jspErrorPage = "/jsp/error/token.jsp";
         } catch (IOException ioe) {
-            PrintWriter writer = response.getWriter();
-            writer.println("I/O error occured. Error details: " + ioe.getMessage() + "<br><br>");
-            writer.println("See server log for more info<br><br>");
-            ioe.printStackTrace();
-            return null;
+            log.error(ioe);
+            jspErrorPage = "/jsp/error/io.jsp";
         }
+
+        PortletRequestDispatcher prd = portletContext.getRequestDispatcher(jspErrorPage);
+        prd.include(request, response);
+        return null;
     }
 
 }

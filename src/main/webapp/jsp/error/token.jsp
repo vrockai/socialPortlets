@@ -27,6 +27,7 @@ limitations under the License.
     <span class="socialMessageContent">
         <portlet:actionURL var="tokenUrl">
             <portlet:param name="javax.portlet.action" value="actionOAuthRedirect"/>
+            <portlet:param name="_oauthCustomScope" value="${_oauthCustomScope}"/>
         </portlet:actionURL>
 
         ${errorMessage}

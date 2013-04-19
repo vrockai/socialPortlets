@@ -64,7 +64,7 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleAccessTok
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleAccessTokenContext accessToken) throws PortletException, IOException {
         final Oauth2 oauth2 = googleProcessor.getOAuth2Instance(accessToken);
 
-        Userinfo userInfo = new GoogleRequest<Userinfo>(response, REQUIRED_SCOPE) {
+        Userinfo userInfo = new GoogleRequest<Userinfo>(request, response, getPortletContext(), getOAuthProvider(), REQUIRED_SCOPE) {
 
             @Override
             protected Userinfo execute() throws IOException {
