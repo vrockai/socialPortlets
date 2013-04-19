@@ -25,7 +25,6 @@
 package org.gatein.security.oauth.portlet.google;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
@@ -34,13 +33,10 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
-import com.restfb.exception.FacebookException;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
-import org.gatein.security.oauth.exception.OAuthException;
-import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
 import org.gatein.security.oauth.google.GoogleAccessTokenContext;
 import org.gatein.security.oauth.portlet.OAuthPortletFilter;
 

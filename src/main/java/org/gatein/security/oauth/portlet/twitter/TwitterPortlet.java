@@ -35,6 +35,7 @@ import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
+import org.gatein.security.oauth.portlet.OAuthPortletFilter;
 import org.gatein.security.oauth.twitter.TwitterAccessTokenContext;
 import org.gatein.security.oauth.twitter.TwitterProcessor;
 import twitter4j.Twitter;
@@ -62,15 +63,34 @@ public class TwitterPortlet extends AbstractSocialPortlet<TwitterAccessTokenCont
     protected void handleRender(RenderRequest request, RenderResponse response, TwitterAccessTokenContext accessToken) throws PortletException, IOException {
         Twitter twitter = gtnTwitterProcessor.getAuthorizedTwitterInstance(accessToken);
 
-        User twitterUser;
+        User twitterUser = null;
         try {
             twitterUser = twitter.verifyCredentials();
         } catch (TwitterException te) {
-            throw new PortletException(te);
+            handleException(request, response, te);
         }
 
-        request.setAttribute("googleUserInfo", twitterUser);
-        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/twitter/userinfo.jsp");
+        if (twitterUser != null) {
+            request.setAttribute("twitterUserInfo", twitterUser);
+            PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/twitter/userinfo.jsp");
+            prd.include(request, response);
+        }
+    }
+
+    private void handleException(RenderRequest request, RenderResponse response, TwitterException te) throws PortletException, IOException {
+        OAuthProviderType<TwitterAccessTokenContext> oauthProviderType = getOAuthProvider();
+
+        String jspErrorPage;
+        if (te.getStatusCode() == 401) {
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_ERROR_MESSAGE, oauthProviderType.getFriendlyName() + " access token is invalid.");
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_OAUTH_PROVIDER_TYPE, oauthProviderType);
+            jspErrorPage = "/jsp/error/token.jsp";
+        } else {
+            log.error(te);
+            jspErrorPage = "/jsp/error/io.jsp";
+        }
+
+        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher(jspErrorPage);
         prd.include(request, response);
     }
 }

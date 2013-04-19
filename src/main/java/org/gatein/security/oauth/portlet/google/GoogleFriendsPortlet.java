@@ -25,19 +25,15 @@
 package org.gatein.security.oauth.portlet.google;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.List;
 
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 import javax.portlet.PortletException;
 import javax.portlet.PortletSession;
-import javax.portlet.PortletURL;
 import javax.portlet.PortletRequestDispatcher;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.plus.Plus;
-import com.google.api.services.plus.model.ActivityFeed;
 import com.google.api.services.plus.model.PeopleFeed;
 import com.google.api.services.plus.model.Person;
 import org.exoplatform.container.ExoContainer;

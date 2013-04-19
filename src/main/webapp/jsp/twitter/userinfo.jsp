@@ -25,13 +25,13 @@
 <div class="socialUserInfoPortlet socialPortlet twitterUserInfoPortlet">
     <h3 class="socialHeader twitterHeader">User</h3>
 
-    <img class="socialUserInfoImage" src="${googleUserInfo.profileImageURL}" title="${googleUserInfo.name}" />
+    <img class="socialUserInfoImage" src="${twitterUserInfo.profileImageURL}" title="${twitterUserInfo.name}" />
 
     <div class="socialUserInfo">
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Username:</span><span class="socialUserPropertyValue">${googleUserInfo.screenName}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Twitter Name:</span><span class="socialUserPropertyValue">${googleUserInfo.name}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Tweets:</span><span class="socialUserPropertyValue">${googleUserInfo.statusesCount}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Followers:</span><span class="socialUserPropertyValue">${googleUserInfo.followersCount}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Last tweet:</span><span class="socialUserPropertyValue">${googleUserInfo.status.text}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Username:</span><span class="socialUserPropertyValue">${twitterUserInfo.screenName}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Twitter Name:</span><span class="socialUserPropertyValue">${twitterUserInfo.name}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Tweets:</span><span class="socialUserPropertyValue">${twitterUserInfo.statusesCount}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Followers:</span><span class="socialUserPropertyValue">${twitterUserInfo.followersCount}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Last tweet:</span><span class="socialUserPropertyValue">${twitterUserInfo.status.text}</span></div>
     </div>
 </div>
