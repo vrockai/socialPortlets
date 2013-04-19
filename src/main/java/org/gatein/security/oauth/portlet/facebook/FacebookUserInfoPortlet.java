@@ -34,12 +34,14 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import com.restfb.exception.FacebookException;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.webui.util.Util;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.data.SocialNetworkService;
+import org.gatein.security.oauth.exception.OAuthException;
 import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
 import org.gatein.security.oauth.facebook.GateInFacebookProcessor;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
@@ -66,10 +68,20 @@ public class FacebookUserInfoPortlet extends AbstractSocialPortlet<FacebookAcces
 
 
     @Override
-    protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
-        FacebookPrincipal principal = gtnFacebookProcessor.getPrincipal(accessToken.getAccessToken());
-        request.setAttribute("googleUserInfo", principal);
-        PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/userinfo.jsp");
-        prd.include(request, response);
+    protected void handleRender(RenderRequest request, RenderResponse response, final FacebookAccessTokenContext accessToken) throws IOException, PortletException {
+        FacebookPrincipal principal = new FacebookRequest<FacebookPrincipal>(request, response, getPortletContext(), getOAuthProvider()) {
+
+            @Override
+            protected FacebookPrincipal execute() throws OAuthException, FacebookException {
+                return gtnFacebookProcessor.getPrincipal(accessToken.getAccessToken());
+            }
+
+        }.sendRequest();
+
+        if (principal != null) {
+            request.setAttribute("facebookUserInfo", principal);
+            PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/userinfo.jsp");
+            prd.include(request, response);
+        }
     }
 }

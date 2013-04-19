@@ -67,7 +67,7 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleAccessTok
         Userinfo userInfo = new GoogleRequest<Userinfo>(response, REQUIRED_SCOPE) {
 
             @Override
-            Userinfo run() throws IOException {
+            protected Userinfo execute() throws IOException {
                 return oauth2.userinfo().v2().me().get().execute();
             }
 

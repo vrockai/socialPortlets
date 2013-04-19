@@ -24,17 +24,17 @@
 
 <div class="socialUserInfoPortlet socialPortlet facebookUserInfoPortlet">
     <h3 class="socialHeader facebookHeader">User</h3>
-    <img class="socialUserInfoImage facebookUserImage" src="http://graph.facebook.com/${googleUserInfo.username}/picture" title="${googleUserInfo.name}" />
+    <img class="socialUserInfoImage facebookUserImage" src="http://graph.facebook.com/${facebookUserInfo.username}/picture" title="${facebookUserInfo.name}" />
     <div class="socialUserInfo">
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">ID:</span><span class="socialUserPropertyValue">${googleUserInfo.id}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Name:</span><span class="socialUserPropertyValue">${googleUserInfo.name}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Username:</span><span class="socialUserPropertyValue">${googleUserInfo.username}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">First Name:</span><span class="socialUserPropertyValue">${googleUserInfo.firstName}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Last Name:</span><span class="socialUserPropertyValue">${googleUserInfo.lastName}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Gender:</span><span class="socialUserPropertyValue">${googleUserInfo.gender}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Timezone:</span><span class="socialUserPropertyValue">${googleUserInfo.timezone}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">Locale:</span><span class="socialUserPropertyValue">${googleUserInfo.locale}</span></div>
-        <div class="socialUserProperty"><span class="socialUserPropertyKey">E-mail:</span><span class="socialUserPropertyValue">${googleUserInfo.email}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">ID:</span><span class="socialUserPropertyValue">${facebookUserInfo.id}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Name:</span><span class="socialUserPropertyValue">${facebookUserInfo.name}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Username:</span><span class="socialUserPropertyValue">${facebookUserInfo.username}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">First Name:</span><span class="socialUserPropertyValue">${facebookUserInfo.firstName}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Last Name:</span><span class="socialUserPropertyValue">${facebookUserInfo.lastName}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Gender:</span><span class="socialUserPropertyValue">${facebookUserInfo.gender}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Timezone:</span><span class="socialUserPropertyValue">${facebookUserInfo.timezone}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">Locale:</span><span class="socialUserPropertyValue">${facebookUserInfo.locale}</span></div>
+        <div class="socialUserProperty"><span class="socialUserPropertyKey">E-mail:</span><span class="socialUserPropertyValue">${facebookUserInfo.email}</span></div>
     </div>
 </div>
 

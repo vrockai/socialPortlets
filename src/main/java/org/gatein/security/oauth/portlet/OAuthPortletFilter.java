@@ -138,6 +138,7 @@ public class OAuthPortletFilter implements RenderFilter {
             actionURL.setParameter(ActionRequest.ACTION_NAME, AbstractSocialPortlet.ACTION_OAUTH_REDIRECT);
 
             request.setAttribute(ATTRIBUTE_ERROR_MESSAGE, oauthProviderType.getFriendlyName() + " access token not available for you.");
+            request.setAttribute(ATTRIBUTE_OAUTH_PROVIDER_TYPE, oauthProviderType);
             PortletRequestDispatcher prd = filterConfig.getPortletContext().getRequestDispatcher("/jsp/error/token.jsp");
             prd.include(request, response);
         }
@@ -156,6 +157,7 @@ public class OAuthPortletFilter implements RenderFilter {
                 String jspPage;
                 if (oe.getExceptionCode() == OAuthExceptionCode.EXCEPTION_CODE_ACCESS_TOKEN_ERROR) {
                     request.setAttribute(ATTRIBUTE_ERROR_MESSAGE, oauthProviderType.getFriendlyName() + " access token is invalid.");
+                    request.setAttribute(ATTRIBUTE_OAUTH_PROVIDER_TYPE, oauthProviderType);
                     jspPage = "/jsp/error/token.jsp";
                 } else if (oe.getExceptionCode() == OAuthExceptionCode.EXCEPTION_CODE_UNSPECIFIED_IO_ERROR) {
                     log.error(oe);

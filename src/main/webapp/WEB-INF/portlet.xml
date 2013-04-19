@@ -116,7 +116,7 @@
     <lifecycle>RENDER_PHASE</lifecycle>
     <init-param>
       <name>accessTokenValidation</name>
-      <value>SESSION</value>
+      <value>SKIP</value>
     </init-param>
   </filter>
 

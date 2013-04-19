@@ -75,7 +75,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
         ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(response, REQUIRED_SCOPE) {
 
             @Override
-            ActivityFeed run() throws IOException {
+            protected ActivityFeed execute() throws IOException {
                 return list.execute();
             }
 
@@ -91,7 +91,7 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
                 CommentFeed comments = new GoogleRequest<CommentFeed>(response, REQUIRED_SCOPE) {
 
                     @Override
-                    CommentFeed run() throws IOException {
+                    protected CommentFeed execute() throws IOException {
                         return service.comments().list(activity.getId()).execute();
                     }
 

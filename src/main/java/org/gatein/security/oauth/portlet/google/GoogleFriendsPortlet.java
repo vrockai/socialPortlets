@@ -109,7 +109,7 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
         PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(response, REQUIRED_SCOPE) {
 
             @Override
-            PeopleFeed run() throws IOException {
+            protected PeopleFeed execute() throws IOException {
                 return list.execute();
             }
 

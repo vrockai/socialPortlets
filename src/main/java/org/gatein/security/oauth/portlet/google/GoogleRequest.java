@@ -30,11 +30,13 @@ import java.io.PrintWriter;
 import javax.portlet.RenderResponse;
 
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.restfb.exception.FacebookException;
+import org.gatein.security.oauth.exception.OAuthException;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
  */
-abstract class GoogleRequest<T> {
+public abstract class GoogleRequest<T> {
 
     private final RenderResponse response;
     private final String requiredScope;
@@ -45,12 +47,12 @@ abstract class GoogleRequest<T> {
     }
 
 
-    abstract T run() throws IOException;
+    protected abstract T execute() throws IOException;
 
 
     T sendRequest() throws IOException {
         try {
-            return run();
+            return execute();
         } catch (GoogleJsonResponseException googleEx) {
             PrintWriter writer = response.getWriter();
             writer.println("Error occured. Your accessToken is invalid or scope is insufficient. You will need scope: " + requiredScope + "<br><br>");
