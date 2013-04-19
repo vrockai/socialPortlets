@@ -56,10 +56,12 @@ public class OAuthPortletFilter implements RenderFilter {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 
-    public static final String ATTRIBUTE_ACCESS_TOKEN = "_attrAccessToken";
-    public static final String INIT_PARAM_ACCESS_TOKEN_VALIDATION = "accessTokenValidation";
+    public static final String ATTRIBUTE_ACCESS_TOKEN = "_attrAccessToken";    ;
     public static final String ATTRIBUTE_ERROR_MESSAGE = "errorMessage";
     public static final String ATTRIBUTE_OAUTH_PROVIDER_TYPE = "oauthProviderType";
+
+    public static final String INIT_PARAM_ACCESS_TOKEN_VALIDATION = "accessTokenValidation";
+    public static final String INIT_PARAM_OAUTH_PROVIDER_KEY = "oauthProviderKey";
 
     private enum AccessTokenValidation {
         SKIP, SESSION, ALWAYS
@@ -67,6 +69,7 @@ public class OAuthPortletFilter implements RenderFilter {
 
     private SocialNetworkService socialNetworkService;
     private OAuthProviderTypeRegistry oauthProviderTypeRegistry;
+    private OAuthProviderType<?> oauthProviderType;
     private FilterConfig filterConfig;
     private AccessTokenValidation accessTokenValidation;
 
@@ -77,6 +80,7 @@ public class OAuthPortletFilter implements RenderFilter {
         this.oauthProviderTypeRegistry = (OAuthProviderTypeRegistry)container.getComponentInstanceOfType(OAuthProviderTypeRegistry.class);
 
         this.filterConfig = filterConfig;
+
         String accessTokenValidation = filterConfig.getInitParameter(INIT_PARAM_ACCESS_TOKEN_VALIDATION);
         if (AccessTokenValidation.ALWAYS.name().equals(accessTokenValidation)) {
             this.accessTokenValidation = AccessTokenValidation.ALWAYS;
@@ -85,6 +89,16 @@ public class OAuthPortletFilter implements RenderFilter {
         } else {
             // SESSION is default validation type
             this.accessTokenValidation = AccessTokenValidation.SESSION;
+        }
+
+        String oauthProviderKey = filterConfig.getInitParameter(INIT_PARAM_OAUTH_PROVIDER_KEY);
+        if (oauthProviderKey != null) {
+            this.oauthProviderType = oauthProviderTypeRegistry.getOAuthProvider(oauthProviderKey);
+            if (this.oauthProviderType == null) {
+                throw new PortletException("OAuth provider '" + oauthProviderKey + "' not found within registered OAuth providers");
+            }
+        } else {
+            throw new PortletException("Init parameter '" + INIT_PARAM_OAUTH_PROVIDER_KEY + "' needs to be provided");
         }
 
     }
@@ -181,7 +195,7 @@ public class OAuthPortletFilter implements RenderFilter {
     }
 
     protected OAuthProviderType<?> getOAuthProvider() {
-        return oauthProviderTypeRegistry.getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_FACEBOOK);
+        return oauthProviderType;
     }
 
     protected AccessTokenContext getAccessToken(PortletRequest req, PortletResponse res) {

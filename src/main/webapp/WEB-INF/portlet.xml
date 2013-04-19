@@ -111,18 +111,58 @@
   </portlet>
 
   <filter>
-    <filter-name>OAuthPortletFilter</filter-name>
+    <filter-name>FacebookFilter</filter-name>
     <filter-class>org.gatein.security.oauth.portlet.OAuthPortletFilter</filter-class>
     <lifecycle>RENDER_PHASE</lifecycle>
     <init-param>
       <name>accessTokenValidation</name>
       <value>SKIP</value>
     </init-param>
+    <init-param>
+      <name>oauthProviderKey</name>
+      <value>FACEBOOK</value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>GoogleFilter</filter-name>
+    <filter-class>org.gatein.security.oauth.portlet.OAuthPortletFilter</filter-class>
+    <lifecycle>RENDER_PHASE</lifecycle>
+    <init-param>
+      <name>accessTokenValidation</name>
+      <value>SKIP</value>
+    </init-param>
+    <init-param>
+      <name>oauthProviderKey</name>
+      <value>GOOGLE</value>
+    </init-param>
+  </filter>
+
+  <filter>
+    <filter-name>TwitterFilter</filter-name>
+    <filter-class>org.gatein.security.oauth.portlet.OAuthPortletFilter</filter-class>
+    <lifecycle>RENDER_PHASE</lifecycle>
+    <init-param>
+      <name>accessTokenValidation</name>
+      <value>SKIP</value>
+    </init-param>
+    <init-param>
+      <name>oauthProviderKey</name>
+      <value>TWITTER</value>
+    </init-param>
   </filter>
 
   <filter-mapping>
-    <filter-name>OAuthPortletFilter</filter-name>
+    <filter-name>FacebookFilter</filter-name>
     <portlet-name>Facebook*</portlet-name>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>GoogleFilter</filter-name>
+    <portlet-name>Google*</portlet-name>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>TwitterFilter</filter-name>
+    <portlet-name>Twitter*</portlet-name>
   </filter-mapping>
 
 </portlet-app>
