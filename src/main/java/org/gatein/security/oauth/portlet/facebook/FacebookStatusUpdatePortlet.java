@@ -41,6 +41,8 @@ import javax.portlet.RenderResponse;
 import com.restfb.DefaultFacebookClient;
 import com.restfb.FacebookClient;
 import com.restfb.Parameter;
+import com.restfb.exception.FacebookException;
+import com.restfb.exception.FacebookNetworkException;
 import com.restfb.exception.FacebookOAuthException;
 import com.restfb.types.FacebookType;
 import org.exoplatform.container.ExoContainer;
@@ -48,6 +50,7 @@ import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
 import org.gatein.security.oauth.facebook.FacebookAccessTokenContext;
 import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
+import org.gatein.security.oauth.portlet.OAuthPortletFilter;
 
 /**
  * @author <a href="mailto:mposolda@redhat.com">Marek Posolda</a>
@@ -57,7 +60,6 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
     public static final String ACTION_UPDATE_STATUS = "_updateStatus";
     public static final String ACTION_BACK = "_backToForm";
 
-    private static final String ATTR_FB_ACCESS_TOKEN = "AttributeFacebookAccessToken";
     public static final String RENDER_PARAM_STATUS = "renderParamStatus";
     public static final String RENDER_PARAM_ERROR_MESSAGE = "renderParamErrorMessage";
 
@@ -80,8 +82,6 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
-        // Save FB AccessToken to session, so it could be used in actionUpdateStatus
-        request.getPortletSession().setAttribute(ATTR_FB_ACCESS_TOKEN, accessToken);
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/statusupdate.jsp");
         prd.include(request, response);
     }
@@ -114,7 +114,7 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         }
 
         // Obtain accessToken from portlet session
-        FacebookAccessTokenContext accessTokenContext = (FacebookAccessTokenContext)aReq.getPortletSession().getAttribute(ATTR_FB_ACCESS_TOKEN);
+        FacebookAccessTokenContext accessTokenContext = (FacebookAccessTokenContext)session.getAttribute(OAuthPortletFilter.ATTRIBUTE_ACCESS_TOKEN);
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessTokenContext.getAccessToken());
         List<Parameter> params = new ArrayList<Parameter>();
@@ -134,12 +134,12 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         } catch (FacebookOAuthException foe) {
             String exMessage = foe.getErrorCode() + " - " + foe.getErrorType() + " - " + foe.getErrorMessage();
             log.warn(exMessage);
-            if (foe.getErrorMessage().contains("The user hasn't authorized the application to perform this action")) {
-                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE.name());
-            } else {
-                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_OTHER.name());
-                aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
-            }
+            aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE.name());
+        } catch (FacebookNetworkException fne) {
+            String exMessage = "Network error when connecting with Facebook: " + fne.getMessage();
+            log.warn(exMessage);
+            aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_OTHER.name());
+            aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
         }
     }
 

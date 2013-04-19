@@ -42,7 +42,7 @@ limitations under the License.
                     Either message or link needs to be specified.
                 </c:when>
                 <c:when test="${param[fbStatus] == 'FACEBOOK_ERROR_INSUFFICIENT_SCOPE'}">
-                    You have insufficient privileges (Facebook scope) to publish message on your FB wall. Your access token need to have the scope:
+                    Your access token is invalid or you have insufficient privileges (Facebook scope) to publish message on your FB wall. Your access token need to have the scope:
                     <b>publish_stream</b><br/>
                     <portlet:actionURL var="privilegesUrl">
                         <portlet:param name="<%= ActionRequest.ACTION_NAME %>"
