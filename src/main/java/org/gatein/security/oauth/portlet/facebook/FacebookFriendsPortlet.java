@@ -93,6 +93,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
+
         PortletSession session = request.getPortletSession();
 
         FacebookBean fb = new FacebookBean();
@@ -101,14 +102,13 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
         // Obtain info about "me" including picture and render them
         UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
+        FacebookUserBean fbMe = new FacebookUserBean(me);
 
         String friendId = request.getParameter(PARAM_PERSON_ID);
         if (friendId != null) {
             FacebookUserBean ffb = displayStatusOfPerson(friendId, facebookClient, me, accessToken, response);
             request.setAttribute("fbFriend", ffb);
         }
-
-        FacebookUserBean fbMe = new FacebookUserBean(me);
 
         String filter = (String)session.getAttribute(PARAM_USER_FILTER);
         List<String> idsOfFriendsToDisplay;
@@ -177,6 +177,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         for (int i=1 ; i<=pageCount ; i++) {
             PortletURL url = response.createRenderURL();
             url.setParameter(PARAM_PAGE,  String.valueOf(i));
+
             urls.add(url.toString());
         }
 
@@ -186,12 +187,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     private List<String> getIdsOfPaginatedFriends(RenderRequest request, RenderResponse response, PortletSession session,
                                                   FacebookClient facebookClient) {
         // Count total number of friends
-        Integer friendsCount = (Integer)session.getAttribute(ATTR_FRIENDS_COUNT);
-        if (friendsCount == null) {
-            Connection<NamedFacebookType> myFriends = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
-            friendsCount = myFriends.getData().size();
-            session.setAttribute(ATTR_FRIENDS_COUNT, friendsCount);
-        }
+        Integer friendsCount = getFriendsCount(session, facebookClient);
 
         // Obtain number of current page
         Integer currentPage;
@@ -205,15 +201,10 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             currentPage = 1;
         }
 
-        Integer pageCount = ((friendsCount-1) / ITEMS_PER_PAGE) + 1;
         Integer indexStart = (currentPage - 1) * ITEMS_PER_PAGE;
         List<NamedFacebookType> friendsToDisplay = facebookClient.fetchConnection("me/friends", NamedFacebookType.class, Parameter.with("offset", indexStart), Parameter.with("limit", ITEMS_PER_PAGE)).getData();
 
-        for (int i=1 ; i<=pageCount ; i++) {
-            PortletURL url = response.createRenderURL();
-            url.setParameter(PARAM_PAGE,  String.valueOf(i));
-
-        }
+        getPaginatorUrls(friendsCount, response);
 
         // Collect IDS of friends to display
         List<String> ids = new ArrayList<String>();

@@ -29,9 +29,9 @@ limitations under the License.
             <portlet:param name="javax.portlet.action" value="actionOAuthRedirect"/>
         </portlet:actionURL>
 
-        Facebook accessToken not available for you. Click
+        ${oauthProviderType.friendlyName} accessToken not available for you. Click
         <a href="${tokenUrl}">here</a>
-        to link your GateIn account with Facebook account.
+        to link your GateIn account with ${oauthProviderType.friendlyName} account.
     </span>
 </div>
 

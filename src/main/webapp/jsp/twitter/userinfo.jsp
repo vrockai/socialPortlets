@@ -22,9 +22,11 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 <portlet:defineObjects />
 
-<div class="socialUserInfoPortlet socialPortlet">
+<div class="socialUserInfoPortlet socialPortlet twitterUserInfoPortlet">
     <h3 class="socialHeader twitterHeader">User</h3>
+
     <img class="socialUserInfoImage" src="${googleUserInfo.profileImageURL}" title="${googleUserInfo.name}" />
+
     <div class="socialUserInfo">
         <div class="socialUserProperty"><span class="socialUserPropertyKey">Username:</span><span class="socialUserPropertyValue">${googleUserInfo.screenName}</span></div>
         <div class="socialUserProperty"><span class="socialUserPropertyKey">Twitter Name:</span><span class="socialUserPropertyValue">${googleUserInfo.name}</span></div>

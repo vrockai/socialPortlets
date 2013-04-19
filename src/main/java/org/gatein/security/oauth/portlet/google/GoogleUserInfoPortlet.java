@@ -31,7 +31,6 @@ import javax.portlet.PortletRequestDispatcher;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.services.oauth2.Oauth2;
 import com.google.api.services.oauth2.model.Userinfo;
 import org.exoplatform.container.ExoContainer;
@@ -48,6 +47,9 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleAccessTok
 
     private GoogleProcessor googleProcessor;
 
+    public static final String GOOGLE_USER_INFO = "googleUserInfo";
+    private static String REQUIRED_SCOPE = "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile";
+
     @Override
     protected void afterInit(ExoContainer container) {
         this.googleProcessor = (GoogleProcessor)container.getComponentInstanceOfType(GoogleProcessor.class);
@@ -62,7 +64,7 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleAccessTok
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleAccessTokenContext accessToken) throws PortletException, IOException {
         final Oauth2 oauth2 = googleProcessor.getOAuth2Instance(accessToken);
 
-        Userinfo uinfo = new GoogleRequest<Userinfo>(response, "https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile") {
+        Userinfo userInfo = new GoogleRequest<Userinfo>(response, REQUIRED_SCOPE) {
 
             @Override
             Userinfo run() throws IOException {
@@ -71,18 +73,9 @@ public class GoogleUserInfoPortlet extends AbstractSocialPortlet<GoogleAccessTok
 
         }.sendRequest();
 
-        if (uinfo != null) {
-            request.setAttribute("googleUserInfo", uinfo);
-            StringBuilder builder = new StringBuilder("Given name: ").append(uinfo.getGivenName())
-                    .append("<br>Family name: " + uinfo.getFamilyName())
-                    .append("<br>Email: " + uinfo.getEmail())
-                    .append("<br>Birthday: " + uinfo.getBirthday())
-                    .append("<br>Gender: " + uinfo.getGender())
-                    .append("<br>Locale: " + uinfo.getLocale())
-                    .append("<br><img src=\"" + uinfo.getPicture() + "?size=100\" title=\"" + uinfo.getName() + "\" />");
-            //writeAndFinishResponse(builder.toString(), response);
+        if (userInfo != null) {
+            request.setAttribute(GOOGLE_USER_INFO, userInfo);
         }
-
 
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/google/userinfo.jsp");
         prd.include(request, response);

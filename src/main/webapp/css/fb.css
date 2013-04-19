@@ -3,3 +3,61 @@
 .facebookHeader {
     background-image: url("../img/fb-32.png");
 }
+
+/* Friends */
+
+.facebookFriendsPortlet h4 {
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 18px;
+}
+
+.socialFriendsPages span, .socialFriendsPane span {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+.socialFriendsPane span {
+    display: block;
+}
+
+.facebookUserInfo {
+    display: inline-block;
+}
+
+.socialFriends {
+    display: inline;
+}
+
+.facebookUserInfo:after {
+    display: inline-block;
+    content: "»";
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 18px;
+    margin-right: 3px;
+}
+
+/* User Info */
+
+.facebookUserInfoPortlet .socialUserInfo {
+    margin-left: 70px;
+}
+
+/* Status update */
+
+.facebookActionStatus {
+    background: #f0f0f0;
+    border-radius: 10px;
+    color: #555555;
+    font-family: ubuntu;
+    font-size: 12px;
+    margin: 5px 0;
+    padding: 10px;
+}
+
+.facebookActionStatus a {
+    color: blue;
+    text-decoration: underline;
+}

@@ -22,7 +22,7 @@
 <%@ page trimDirectiveWhitespaces="true"%>
 <portlet:defineObjects />
 
-<div class="socialUserInfoPortlet socialPortlet">
+<div class="socialUserInfoPortlet socialPortlet facebookUserInfoPortlet">
     <h3 class="socialHeader facebookHeader">User</h3>
     <img class="socialUserInfoImage facebookUserImage" src="http://graph.facebook.com/${googleUserInfo.username}/picture" title="${googleUserInfo.name}" />
     <div class="socialUserInfo">

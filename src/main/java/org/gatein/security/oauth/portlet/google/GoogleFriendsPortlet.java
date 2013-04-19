@@ -56,6 +56,7 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
     private static final String PARAM_PAGE = "page";
     private static final String PREV = "prev";
     private static final String NEXT = "next";
+    public static final String REQUIRED_SCOPE = "https://www.googleapis.com/auth/plus.login";
 
     private GoogleProcessor googleProcessor;
 
@@ -75,8 +76,11 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
     // See https://developers.google.com/+/api/latest/people/list for details
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleAccessTokenContext accessToken) throws PortletException, IOException {
+
         Plus service = googleProcessor.getPlusService(accessToken);
+
         final Plus.People.List list = service.people().list("me", "visible");
+
         // Possible values are "alphabetical", "best"
         list.setOrderBy("alphabetical");
         list.setMaxResults(10L);
@@ -102,7 +106,7 @@ public class GoogleFriendsPortlet extends AbstractSocialPortlet<GoogleAccessToke
 
         list.setPageToken(pgState.getTokenOfCurrentPage());
 
-        PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(response, "https://www.googleapis.com/auth/plus.login") {
+        PeopleFeed peopleFeed = new GoogleRequest<PeopleFeed>(response, REQUIRED_SCOPE) {
 
             @Override
             PeopleFeed run() throws IOException {

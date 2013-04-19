@@ -1,5 +1,9 @@
 @import url("social.css");
 
-.twitterHeader {
+.twitterUserInfoPortlet .twitterHeader {
     background-image: url("../img/twitter-32.png");
+}
+
+.twitterUserInfoPortlet .socialUserInfo {
+    margin-left: 70px;
 }

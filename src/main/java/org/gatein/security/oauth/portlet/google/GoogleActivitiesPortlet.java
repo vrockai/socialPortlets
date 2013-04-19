@@ -51,8 +51,8 @@ import org.gatein.security.oauth.portlet.AbstractSocialPortlet;
  */
 public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessTokenContext> {
 
+    public static final String REQUIRED_SCOPE = "https://www.googleapis.com/auth/plus.login";
     private GoogleProcessor googleProcessor;
-
 
     @Override
     protected void afterInit(ExoContainer container) {
@@ -65,17 +65,14 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
         return getOauthProviderTypeRegistry().getOAuthProvider(OAuthConstants.OAUTH_PROVIDER_KEY_GOOGLE);
     }
 
-
     // See https://developers.google.com/+/api/latest/activities/list for details
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, GoogleAccessTokenContext accessToken) throws PortletException, IOException {
-        PrintWriter writer = response.getWriter();
-
         final Plus service = googleProcessor.getPlusService(accessToken);
         final Plus.Activities.List list  = service.activities().list("me", "public");
         list.setMaxResults(10L);
 
-        ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(response, "https://www.googleapis.com/auth/plus.login") {
+        ActivityFeed activityFeed = new GoogleRequest<ActivityFeed>(response, REQUIRED_SCOPE) {
 
             @Override
             ActivityFeed run() throws IOException {
@@ -88,18 +85,10 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
 
         // TODO: jsp?
         if (activityFeed != null) {
-            //writer.println("<h2>Your last google+ activities</h2>");
             for (final Activity activity : activityFeed.getItems()) {
 
                 GoogleActivityBean gab = new GoogleActivityBean(activity);
-                /*
-                Activity.PlusObject activityObject = activity.getObject();
-                writer.println("<h3>" + activity.getTitle() + "</h3>");
-                writer.println("Likes: <b>" + activityObject.getPlusoners().getTotalItems() + "</b>");
-                writer.println(", Resharers: <b>" + activityObject.getResharers().getTotalItems() + "</b>, ");
-                writer.println("<a href=\"" + activity.getUrl() + "\" style=\"color: blue;\">Activity details</a><br><br>");
-                */
-                CommentFeed comments = new GoogleRequest<CommentFeed>(response, "https://www.googleapis.com/auth/plus.login") {
+                CommentFeed comments = new GoogleRequest<CommentFeed>(response, REQUIRED_SCOPE) {
 
                     @Override
                     CommentFeed run() throws IOException {
@@ -111,20 +100,6 @@ public class GoogleActivitiesPortlet extends AbstractSocialPortlet<GoogleAccessT
                 gab.setCommentFeed(comments);
 
                 googleActivityBeanList.add(gab);
-                /*
-                if (comments != null) {
-                    int counter = 1;
-                    for (Comment comment : comments.getItems()) {
-                        writer.println("<b>Comment " + counter + "</b><br>");
-                        writer.println("From: " + comment.getActor().getDisplayName() + "<br>");
-                        writer.println("Text: " + comment.getObject().getContent() + "<br>");
-                        writer.println("Likes: " + comment.getPlusoners().getTotalItems() + "<br><br>");
-                        counter++;
-                    }
-                }
-
-                writer.println("<hr>");
-                */
             }
         }
 

@@ -26,87 +26,109 @@ limitations under the License.
 <portlet:defineObjects/>
 
 <div class="socialPortlet facebookFriendsPortlet">
-    <h3 class="socialHeader facebookHeader">Friends (${fbMe.friendsNumber})</h3>
+  <h3 class="socialHeader facebookHeader">Friends</h3>
 
-    <portlet:actionURL var="filterUrl">
-        <portlet:param name="<%= ActionRequest.ACTION_NAME %>" value="<%= FacebookFriendsPortlet.ACTION_USER_FILTER%>" />
-    </portlet:actionURL>
+  <portlet:actionURL var="filterUrl">
+    <portlet:param name="<%= ActionRequest.ACTION_NAME %>" value="<%= FacebookFriendsPortlet.ACTION_USER_FILTER%>"/>
+  </portlet:actionURL>
 
-    <h4>Friend Filter (by name):</h4>
-    <form action="${filterUrl}" class="socialForm horizontalForm" method="POST">
-        <label><span>Filter:</span><input name="<%= FacebookFriendsPortlet.PARAM_USER_FILTER%>"/></label>
-        <input type="submit" name="triggerFilter" value="Submit Filter"/>
-        <input type="submit" name="cancelFilter" value="Cancel Filter"/><br>
-    </form>
+  <h4>Friend Filter (by name):</h4>
 
-    <h4>Your Friends:</h4>
+  <form action="${filterUrl}" class="socialForm horizontalForm" method="POST">
+    <label><span>Filter:</span><input name="<%= FacebookFriendsPortlet.PARAM_USER_FILTER%>"/></label>
+    <input type="submit" name="triggerFilter" value="Submit Filter"/>
+    <input type="submit" name="cancelFilter" value="Cancel Filter"/><br>
+  </form>
+
+  <h4>Your Friends (${fbMe.friendsNumber}):</h4>
+
+
+  <div class="socialFriendsPane">
+    <span>Click on a person to see status updates:</span>
+
+    <div class="facebookUserInfo">
+      <portlet:renderURL var="myUrl">
+        <portlet:param name="_personID" value="${fbMe.id}"/>
+      </portlet:renderURL>
+      <a href="${myUrl}" class="socialFriendItem">
+        <img src="${fbMe.imageUrl}" title="${fbMe.name}"/>
+      </a>
+    </div>
     <div class="socialFriends">
-        <c:forEach var="fbFriend" items="${fbFriends}">
-            <portlet:renderURL var="friendUrl">
-                <portlet:param name="_personID" value="${fbFriend.id}"/>
-            </portlet:renderURL>
-            <a href="${friendUrl}" class="socialFriendItem">
-                <img src="${fbFriend.imageUrl}" title="${fbFriend.name}"/>
-            </a>
-        </c:forEach>
+      <c:forEach var="fbFriend" items="${fbFriends}">
+        <portlet:renderURL var="friendUrl">
+          <portlet:param name="_personID" value="${fbFriend.id}"/>
+        </portlet:renderURL>
+        <a href="${friendUrl}" class="socialFriendItem">
+          <img src="${fbFriend.imageUrl}" title="${fbFriend.name}"/>
+        </a>
+      </c:forEach>
     </div>
+
+    <c:if test="${!empty fbBean.friendPaginatorUrls}">
     <div class="socialFriendsPages">
-        <c:set var="count" value="0" scope="page" />
-        <c:forEach var="fbPaginatorUrl" items="${fbBean.friendPaginatorUrls}">
-            <c:set var="count" value="${count + 1}" scope="page"/>
-            <a href="${fbPaginatorUrl}"><c:out value="${count}" /></a>
-        </c:forEach>
+      <span>Page:</span>
+      <c:set var="count" value="0" scope="page"/>
+      <c:forEach var="fbPaginatorUrl" items="${fbBean.friendPaginatorUrls}">
+        <c:set var="count" value="${count + 1}" scope="page"/>
+        <a href="${fbPaginatorUrl}"><c:out value="${count}"/></a>
+      </c:forEach>
     </div>
-
-    <c:if test="${!empty fbFriend}">
-        <div class="socialFriendDetails">
-            <h4>Friend Details for: ${fbFriend.name}</h4>
-            <c:choose>
-                <c:when test="${empty fbFriend.statuses}">
-                    <portlet:actionURL var="scopeUrl">
-                        <portlet:param name="javax.portlet.action" value="actionOAuthRedirect"/>
-                        <portlet:param name="_oauthCustomScope"
-                                       value="${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}"/>
-                    </portlet:actionURL>
-                    <c:choose>
-                        <c:when test="${fbFriend.scope}">
-                            This user doesn't have any public messages<br/>
-                        </c:when>
-                        <c:otherwise>
-                            <b>WARNING: </b>
-                            You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope:
-                            <b>${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}</b><br/>
-
-                            Click <a style="color: blue;" href="${scopeUrl}">here</a> to fix it<br/><br/>
-                        </c:otherwise>
-                    </c:choose>
-                </c:when>
-                <c:otherwise>
-                    <c:forEach var="fbStatus" items="${fbFriend.statuses}">
-                        <div class='socialActivity'>
-                            <div class="activityDetails">
-                                <div class="activityHeader">${fbStatus.message}</div>
-                                <div class="activityPopularity">
-                                    <div class="activityLikes">+${fn:length(fbStatus.likes)}</div>
-                                </div>
-                            </div>
-
-                            <div class="activityComments">
-                                <c:forEach var="fbComment" items="${fbStatus.comments}">
-                                    <div class="commentDetails">
-                                        <div class="commentAuthor">${fbComment.from.name} (${fbComment.createdTime})</div>
-                                        <c:if test="${fbComment.likeCount > 0}">
-                                            <div class="commentLikes">+${fbComment.likeCount}</div>
-                                        </c:if>
-                                        <div class="commentContent">${fbComment.message}</div>
-                                    </div>
-                                </c:forEach>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </c:otherwise>
-            </c:choose>
-        </div>
     </c:if>
+  </div>
+
+  <c:if test="${!empty fbFriend}">
+    <div class="socialFriendDetails">
+      <h4>Status Updates for: ${fbFriend.name}</h4>
+      <c:choose>
+        <c:when test="${empty fbFriend.statuses}">
+          <portlet:actionURL var="scopeUrl">
+            <portlet:param name="javax.portlet.action" value="actionOAuthRedirect"/>
+            <portlet:param name="_oauthCustomScope"
+                           value="${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}"/>
+          </portlet:actionURL>
+          <c:choose>
+            <c:when test="${fbFriend.scope}">
+              This user doesn't have any public messages<br/>
+            </c:when>
+            <c:otherwise>
+              <b>WARNING: </b>
+              You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope:
+              <b>${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}</b><br/>
+
+              Click <a style="color: blue;" href="${scopeUrl}">here</a> to fix it<br/><br/>
+            </c:otherwise>
+          </c:choose>
+        </c:when>
+        <c:otherwise>
+          <c:forEach var="fbStatus" items="${fbFriend.statuses}">
+            <div class='socialActivity'>
+              <div class="activityDetails">
+                <div class="activityHeader">${fbStatus.message}</div>
+                <div class="activityPopularity">
+                  <div class="activityLikes"
+                       title='<c:forEach var="fbLike" items="${fbStatus.likes}" varStatus="id">${fbLike.name}${id.last ? "" : ", "}</c:forEach>' >
+                    +${fn:length(fbStatus.likes)}
+                  </div>
+                </div>
+              </div>
+
+              <div class="activityComments">
+                <c:forEach var="fbComment" items="${fbStatus.comments}">
+                  <div class="commentDetails">
+                    <div class="commentAuthor">${fbComment.from.name} (${fbComment.createdTime})</div>
+                    <c:if test="${fbComment.likeCount > 0}">
+                      <div class="commentLikes">+${fbComment.likeCount}</div>
+                    </c:if>
+                    <div class="commentContent">${fbComment.message}</div>
+                  </div>
+                </c:forEach>
+              </div>
+            </div>
+          </c:forEach>
+        </c:otherwise>
+      </c:choose>
+    </div>
+  </c:if>
 
 </div>

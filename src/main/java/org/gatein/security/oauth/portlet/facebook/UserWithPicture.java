@@ -24,6 +24,8 @@
 
 package org.gatein.security.oauth.portlet.facebook;
 
+import javax.persistence.Transient;
+
 import com.restfb.Facebook;
 import com.restfb.types.NamedFacebookType;
 
@@ -65,5 +67,15 @@ public class UserWithPicture extends NamedFacebookType {
             return isSilhouette;
         }
 
+    }
+
+    @Override
+    public boolean equals(Object o){
+        return super.equals(o);
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
     }
 }

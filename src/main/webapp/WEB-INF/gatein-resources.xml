@@ -14,14 +14,14 @@
     <application-name>gatein-social-portlets</application-name>
     <portlet-name>FacebookFriendsPortlet</portlet-name>
     <skin-name>Default</skin-name>
-    <css-path>/css/fbFriends.css</css-path>
+    <css-path>/css/fb.css</css-path>
   </portlet-skin>
 
   <portlet-skin>
     <application-name>gatein-social-portlets</application-name>
     <portlet-name>FacebookStatusUpdatePortlet</portlet-name>
     <skin-name>Default</skin-name>
-    <css-path>/css/fbStatus.css</css-path>
+    <css-path>/css/fb.css</css-path>
   </portlet-skin>
 
   <portlet-skin>

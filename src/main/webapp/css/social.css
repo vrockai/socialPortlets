@@ -162,7 +162,7 @@
 
 }
 .socialUserInfo {
-    display: inline-block;
+    display: block;
 }
 
 .socialUserPropertyKey {

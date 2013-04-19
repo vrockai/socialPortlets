@@ -80,9 +80,6 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
-        java.io.PrintStream out = System.out;//response.getWriter();
-        PortletSession session = request.getPortletSession();
-
         // Save FB AccessToken to session, so it could be used in actionUpdateStatus
         request.getPortletSession().setAttribute(ATTR_FB_ACCESS_TOKEN, accessToken);
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/statusupdate.jsp");

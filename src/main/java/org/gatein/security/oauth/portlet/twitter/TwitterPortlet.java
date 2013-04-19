@@ -68,15 +68,7 @@ public class TwitterPortlet extends AbstractSocialPortlet<TwitterAccessTokenCont
         } catch (TwitterException te) {
             throw new PortletException(te);
         }
-                              /*
-        StringBuilder htmlResponse = new StringBuilder("Twitter username: " + twitterUser.getScreenName() + "<br>");
-        htmlResponse.append("Twitter name: " + twitterUser.getName() + "<br>");
-        htmlResponse.append("Tweets: " + twitterUser.getStatusesCount() + ", Friends: " + twitterUser.getFriendsCount() +
-                ", Followers: " + twitterUser.getFollowersCount() + "<br>");
-        htmlResponse.append("Last tweet: " + twitterUser.getStatus().getText() + "<br>");
-        htmlResponse.append("<img src=\"" + twitterUser.getProfileImageURL() + "\" alt=\"Your picture\" /><br>");
-                                                                                  */
-        //writeAndFinishResponse(htmlResponse.toString(), response);
+
         request.setAttribute("googleUserInfo", twitterUser);
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/twitter/userinfo.jsp");
         prd.include(request, response);

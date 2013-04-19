@@ -68,7 +68,6 @@ public class FacebookUserInfoPortlet extends AbstractSocialPortlet<FacebookAcces
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
         FacebookPrincipal principal = gtnFacebookProcessor.getPrincipal(accessToken.getAccessToken());
-        //writeAndFinishResponse(principal.toString(), response);
         request.setAttribute("googleUserInfo", principal);
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/userinfo.jsp");
         prd.include(request, response);
