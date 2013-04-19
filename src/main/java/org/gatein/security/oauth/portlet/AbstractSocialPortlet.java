@@ -105,19 +105,10 @@ public abstract class AbstractSocialPortlet<T extends AccessTokenContext> extend
             log.trace("Invoked  doView");
         }
 
-        String username = request.getRemoteUser();
-
-        if (username == null) {
-            //writeAndFinishResponse("No content available for anonymous user. You need to login first", response);
-            PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/error/anonymous.jsp");
-            prd.include(request, response);
-            return;
-        }
-
         OAuthProviderType<T> oauthProviderType = getOAuthProvider();
 
 
-        T accessToken = getAccessTokenOrRedirectToObtainIt(username, oauthProviderType, request, response);
+        T accessToken = getAccessToken(request, response, oauthProviderType);
         if (accessToken != null) {
             if (trace) {
                 log.trace("Invoking handleRender with accessToken " + accessToken);
@@ -179,23 +170,15 @@ public abstract class AbstractSocialPortlet<T extends AccessTokenContext> extend
     }
 
 
-    private T getAccessTokenOrRedirectToObtainIt(String username, OAuthProviderType<T> oauthProviderType, RenderRequest request, RenderResponse response)
+    private T getAccessToken(RenderRequest request, RenderResponse response, OAuthProviderType<T> oauthProviderType)
             throws IOException, PortletException {
-        T accessToken = socialNetworkService.getOAuthAccessToken(oauthProviderType, username);
+        T accessToken = (T)request.getPortletSession().getAttribute(OAuthPortletFilter.ATTRIBUTE_ACCESS_TOKEN);
 
         if (accessToken == null) {
-            // Will be processed by method actionRedirectToOAuthFlow
-            PortletURL actionURL = response.createActionURL();
-            actionURL.setParameter(ActionRequest.ACTION_NAME, ACTION_OAUTH_REDIRECT);
-
-            request.setAttribute("oauthProviderType", oauthProviderType);
-
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_ERROR_MESSAGE, oauthProviderType.getFriendlyName() + " access token not available for you or portlet session expired.");
+            request.setAttribute(OAuthPortletFilter.ATTRIBUTE_OAUTH_PROVIDER_TYPE, oauthProviderType);
             PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/error/token.jsp");
             prd.include(request, response);
-            /*
-            writeAndFinishResponse(oauthProviderType.getFriendlyName() + " accessToken not available for you. Click <a href=\"" +
-            actionURL + "\" style=\"color: blue;\">here</a> to link your " + portalName + " account with " + oauthProviderType.getFriendlyName() + " account", response);
-            */
         }
 
         return accessToken;

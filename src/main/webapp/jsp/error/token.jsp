@@ -29,7 +29,8 @@ limitations under the License.
             <portlet:param name="javax.portlet.action" value="actionOAuthRedirect"/>
         </portlet:actionURL>
 
-        ${oauthProviderType.friendlyName} accessToken not available for you. Click
+        ${errorMessage}
+        Click
         <a href="${tokenUrl}">here</a>
         to link your GateIn account with ${oauthProviderType.friendlyName} account.
     </span>

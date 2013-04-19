@@ -110,4 +110,19 @@
     </portlet-info>
   </portlet>
 
+  <filter>
+    <filter-name>OAuthPortletFilter</filter-name>
+    <filter-class>org.gatein.security.oauth.portlet.OAuthPortletFilter</filter-class>
+    <lifecycle>RENDER_PHASE</lifecycle>
+    <init-param>
+      <name>accessTokenValidation</name>
+      <value>SESSION</value>
+    </init-param>
+  </filter>
+
+  <filter-mapping>
+    <filter-name>OAuthPortletFilter</filter-name>
+    <portlet-name>Facebook*</portlet-name>
+  </filter-mapping>
+
 </portlet-app>
