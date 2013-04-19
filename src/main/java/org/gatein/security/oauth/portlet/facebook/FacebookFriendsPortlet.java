@@ -25,7 +25,6 @@
 package org.gatein.security.oauth.portlet.facebook;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,14 +38,7 @@ import javax.portlet.ProcessAction;
 import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
-import com.restfb.Connection;
-import com.restfb.DefaultFacebookClient;
-import com.restfb.FacebookClient;
-import com.restfb.Parameter;
-import com.restfb.json.JsonObject;
-import com.restfb.types.Comment;
 import com.restfb.types.NamedFacebookType;
-import com.restfb.types.StatusMessage;
 import org.exoplatform.container.ExoContainer;
 import org.gatein.security.oauth.common.OAuthConstants;
 import org.gatein.security.oauth.common.OAuthProviderType;
@@ -98,23 +90,28 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
 
         FacebookBean fb = new FacebookBean();
 
-        FacebookClient facebookClient = new DefaultFacebookClient(accessToken.getAccessToken());
+        FacebookClientWrapper facebookClient = new FacebookClientWrapper(request, response, getPortletContext(), getOAuthProvider(), accessToken.getAccessToken());
 
         // Obtain info about "me" including picture and render them
-        UserWithPicture me = facebookClient.fetchObject("me", UserWithPicture.class, Parameter.with("fields", "id,name,picture"));
+        UserWithPicture me = facebookClient.getMe();
+        if (me == null) {
+            return;
+        }
         FacebookUserBean fbMe = new FacebookUserBean(me);
 
         String friendId = request.getParameter(PARAM_PERSON_ID);
         if (friendId != null) {
-            FacebookUserBean ffb = displayStatusOfPerson(friendId, facebookClient, me, accessToken, response);
-            request.setAttribute("fbFriend", ffb);
+            FacebookUserBean ffb = facebookClient.getStatusesOfPerson(friendId, me.getId(), accessToken);
+            if (ffb != null) {
+                request.setAttribute("fbFriend", ffb);
+            }
         }
 
         String filter = (String)session.getAttribute(PARAM_USER_FILTER);
         List<String> idsOfFriendsToDisplay;
 
         if (filter != null) {
-            idsOfFriendsToDisplay = getIdsOfFilteredFriends(filter, facebookClient);
+            idsOfFriendsToDisplay = facebookClient.getIdsOfFilteredFriends(filter);
         } else {
             idsOfFriendsToDisplay = getIdsOfPaginatedFriends(request, response, session, facebookClient);
             int friendsCount = getFriendsCount(session, facebookClient);
@@ -123,19 +120,7 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
             fb.setFriendPaginatorUrls(getPaginatorUrls(friendsCount,response));
         }
 
-        List<FacebookUserBean> fbFriends = new ArrayList<FacebookUserBean>();
-
-        // Render friends with their pictures
-        if (idsOfFriendsToDisplay.size() > 0) {
-            // Fetch all required friends with obtained ids
-            JsonObject friendsResult = facebookClient.fetchObjects(idsOfFriendsToDisplay, JsonObject.class, Parameter.with("fields", "id,name,picture"));
-
-            for (String id : idsOfFriendsToDisplay) {
-                JsonObject current = friendsResult.getJsonObject(id);
-                UserWithPicture friend = facebookClient.getJsonMapper().toJavaObject(current.toString(), UserWithPicture.class);
-                fbFriends.add(new FacebookUserBean(friend));
-            }
-        }
+        List<FacebookUserBean> fbFriends = facebookClient.getFriends(idsOfFriendsToDisplay);
 
         request.setAttribute("fbBean", fb);
         request.setAttribute("fbMe", fbMe);
@@ -144,11 +129,10 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         prd.include(request, response);
     }
 
-    private int getFriendsCount(PortletSession session, FacebookClient facebookClient){
+    private int getFriendsCount(PortletSession session, FacebookClientWrapper facebookClient) throws PortletException, IOException {
         Integer friendsCount = (Integer)session.getAttribute(ATTR_FRIENDS_COUNT);
         if (friendsCount == null) {
-            Connection<NamedFacebookType> myFriends = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
-            friendsCount = myFriends.getData().size();
+            friendsCount = facebookClient.getFriendsCount();
             session.setAttribute(ATTR_FRIENDS_COUNT, friendsCount);
         }
         return friendsCount;
@@ -185,25 +169,15 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
     }
 
     private List<String> getIdsOfPaginatedFriends(RenderRequest request, RenderResponse response, PortletSession session,
-                                                  FacebookClient facebookClient) {
+                                                  FacebookClientWrapper facebookClient) throws PortletException, IOException {
         // Count total number of friends
         Integer friendsCount = getFriendsCount(session, facebookClient);
 
         // Obtain number of current page
-        Integer currentPage;
-        if (request.getParameter(PARAM_PAGE) != null) {
-            currentPage = Integer.parseInt(request.getParameter(PARAM_PAGE));
-            session.setAttribute(PARAM_PAGE, currentPage);
-        } else {
-            currentPage = (Integer)session.getAttribute(PARAM_PAGE);
-        }
-        if (currentPage == null) {
-            currentPage = 1;
-        }
+        Integer currentPage = getCurrentPageNumber(request, session);
 
         Integer indexStart = (currentPage - 1) * ITEMS_PER_PAGE;
-        List<NamedFacebookType> friendsToDisplay = facebookClient.fetchConnection("me/friends", NamedFacebookType.class, Parameter.with("offset", indexStart), Parameter.with("limit", ITEMS_PER_PAGE)).getData();
-
+        List<NamedFacebookType> friendsToDisplay = facebookClient.getPageOfFriends(indexStart, ITEMS_PER_PAGE);
         getPaginatorUrls(friendsCount, response);
 
         // Collect IDS of friends to display
@@ -215,42 +189,4 @@ public class FacebookFriendsPortlet extends AbstractSocialPortlet<FacebookAccess
         return ids;
     }
 
-    // Pagination is skipped if user filtering is enabled
-    private List<String> getIdsOfFilteredFriends(String filter, FacebookClient facebookClient) {
-        // Not good to obtain all friends within each request, but we don't have better way atm (limitation of facebook search api...)
-        // TODO: Cache it?
-        Connection<NamedFacebookType> connection = facebookClient.fetchConnection("me/friends", NamedFacebookType.class);
-        List<NamedFacebookType> allFriends = connection.getData();
-        List<String> result = new ArrayList<String>();
-        for (NamedFacebookType current : allFriends) {
-            if (current.getName().contains(filter)) {
-                result.add(current.getId());
-            }
-        }
-        return result;
-    }
-
-    private FacebookUserBean displayStatusOfPerson(String friendId, FacebookClient facebookClient, NamedFacebookType me, FacebookAccessTokenContext accessTokenContext, RenderResponse response) {
-        Connection<StatusMessage> statusMessageConnection = facebookClient.fetchConnection(friendId + "/statuses", StatusMessage.class, Parameter.with("limit", 5));
-        List<StatusMessage> statuses = statusMessageConnection.getData();
-
-        FacebookUserBean ffb = new FacebookUserBean();
-        ffb.setId(friendId);
-        ffb.setScope(false);
-        ffb.setStatuses(statuses);
-
-        if (statuses.size() == 0) {
-            // Different scope is needed for me and different for my friends
-            String neededScope = friendId.equals(me.getId()) ? "user_status" : "friends_status";
-
-            if (accessTokenContext.isScopeAvailable(neededScope)) {
-                ffb.setScope(true);
-            }
-        } else {
-            NamedFacebookType currentFriendToDisplay = facebookClient.fetchObject(friendId, NamedFacebookType.class, Parameter.with("fields", "id,name"));
-            ffb.setName(currentFriendToDisplay.getName());
-        }
-
-        return ffb;
-    }
 }

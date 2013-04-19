@@ -40,6 +40,7 @@ public class FacebookUserBean {
     private String imageUrl;
     private String name;
     private String profileUrl;
+    private String neededScope;
     private List<StatusMessage> statuses;
     private List<FacebookUserBean> friends;
 
@@ -121,4 +122,11 @@ public class FacebookUserBean {
         this.profileUrl = profileUrl;
     }
 
+    public String getNeededScope() {
+        return neededScope;
+    }
+
+    public void setNeededScope(String neededScope) {
+        this.neededScope = neededScope;
+    }
 }

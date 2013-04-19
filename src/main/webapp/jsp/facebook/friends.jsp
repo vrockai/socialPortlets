@@ -94,7 +94,7 @@ limitations under the License.
             <c:otherwise>
               <b>WARNING: </b>
               You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope:
-              <b>${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}</b><br/>
+              <b>${fbFriend.neededScope}</b><br/>
 
               Click <a style="color: blue;" href="${scopeUrl}">here</a> to fix it<br/><br/>
             </c:otherwise>

@@ -113,8 +113,13 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
             log.trace(builder.toString());
         }
 
-        // Obtain accessToken from portlet session
+        // Obtain accessToken directly from portlet session
         FacebookAccessTokenContext accessTokenContext = (FacebookAccessTokenContext)session.getAttribute(OAuthPortletFilter.ATTRIBUTE_ACCESS_TOKEN);
+
+        // This could happen if session expired
+        if (accessTokenContext == null) {
+            return;
+        }
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessTokenContext.getAccessToken());
         List<Parameter> params = new ArrayList<Parameter>();

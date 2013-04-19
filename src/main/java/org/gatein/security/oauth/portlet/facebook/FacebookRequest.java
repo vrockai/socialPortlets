@@ -103,7 +103,7 @@ public abstract class FacebookRequest<T> {
                 jspPage = "/jsp/error/io.jsp";
             }
 
-            PortletRequestDispatcher prd = portletContext.getRequestDispatcher("/jsp/error/token.jsp");
+            PortletRequestDispatcher prd = portletContext.getRequestDispatcher(jspPage);
             prd.include(request, response);
         }
 
