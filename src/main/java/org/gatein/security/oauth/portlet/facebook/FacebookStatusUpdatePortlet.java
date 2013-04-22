@@ -63,6 +63,13 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
     public static final String RENDER_PARAM_STATUS = "renderParamStatus";
     public static final String RENDER_PARAM_ERROR_MESSAGE = "renderParamErrorMessage";
 
+    public static final String PARAM_MESSAGE = "message";
+    public static final String PARAM_LINK = "link";
+    public static final String PARAM_PICTURE = "picture";
+    public static final String PARAM_NAME = "name";
+    public static final String PARAM_CAPTION = "caption";
+    public static final String PARAM_DESCRIPTION = "description";
+
     public enum Status {
         SUCCESS,
         NOT_SPECIFIED_MESSAGE_OR_LINK,
@@ -82,6 +89,16 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
 
     @Override
     protected void handleRender(RenderRequest request, RenderResponse response, FacebookAccessTokenContext accessToken) throws IOException, PortletException {
+        PortletSession session = request.getPortletSession();
+
+        // Refresh form values in view
+        refreshParameter(PARAM_MESSAGE, request, session);
+        refreshParameter(PARAM_LINK, request, session);
+        refreshParameter(PARAM_PICTURE, request, session);
+        refreshParameter(PARAM_NAME, request, session);
+        refreshParameter(PARAM_CAPTION, request, session);
+        refreshParameter(PARAM_DESCRIPTION, request, session);
+
         PortletRequestDispatcher prd = getPortletContext().getRequestDispatcher("/jsp/facebook/statusupdate.jsp");
         prd.include(request, response);
     }
@@ -91,12 +108,12 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
     public void actionUpdateStatus(ActionRequest aReq, ActionResponse aResp) throws IOException {
         PortletSession session = aReq.getPortletSession();
 
-        String message = getParameterAndSaveItToSession("message", aReq, session);
-        String link = getParameterAndSaveItToSession("link", aReq, session);
-        String picture = getParameterAndSaveItToSession("picture", aReq, session);
-        String name = getParameterAndSaveItToSession("name", aReq, session);
-        String caption = getParameterAndSaveItToSession("caption", aReq, session);
-        String description = getParameterAndSaveItToSession("description", aReq, session);
+        String message = getParameterAndSaveItToSession(PARAM_MESSAGE, aReq, session);
+        String link = getParameterAndSaveItToSession(PARAM_LINK, aReq, session);
+        String picture = getParameterAndSaveItToSession(PARAM_PICTURE, aReq, session);
+        String name = getParameterAndSaveItToSession(PARAM_NAME, aReq, session);
+        String caption = getParameterAndSaveItToSession(PARAM_CAPTION, aReq, session);
+        String description = getParameterAndSaveItToSession(PARAM_DESCRIPTION, aReq, session);
 
         if (isEmpty(message) && isEmpty(link)) {
             aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.NOT_SPECIFIED_MESSAGE_OR_LINK.name());
@@ -123,12 +140,12 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
 
         FacebookClient facebookClient = new DefaultFacebookClient(accessTokenContext.getAccessToken());
         List<Parameter> params = new ArrayList<Parameter>();
-        appendParam(params, "message", message);
-        appendParam(params, "link", link);
-        appendParam(params, "picture", picture);
-        appendParam(params, "name", name);
-        appendParam(params, "caption", caption);
-        appendParam(params, "description", description);
+        appendParam(params, PARAM_MESSAGE, message);
+        appendParam(params, PARAM_LINK, link);
+        appendParam(params, PARAM_PICTURE, picture);
+        appendParam(params, PARAM_NAME, name);
+        appendParam(params, PARAM_CAPTION, caption);
+        appendParam(params, PARAM_DESCRIPTION, description);
 
         try {
             FacebookType publishMessageResponse = facebookClient.publish("me/feed", FacebookType.class, params.toArray(new Parameter[] {}));
@@ -139,7 +156,15 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         } catch (FacebookOAuthException foe) {
             String exMessage = foe.getErrorCode() + " - " + foe.getErrorType() + " - " + foe.getErrorMessage();
             log.warn(exMessage);
-            aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE.name());
+
+            if (foe.getErrorCode() == 190 || foe.getErrorCode() >= 200 && foe.getErrorCode() <=299) {
+                // Token error occured
+                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_INSUFFICIENT_SCOPE.name());
+            } else {
+                // Other error occured (like invalid URL of link)
+                aResp.setRenderParameter(RENDER_PARAM_STATUS, Status.FACEBOOK_ERROR_OTHER.name());
+                aResp.setRenderParameter(RENDER_PARAM_ERROR_MESSAGE, exMessage);
+            }
         } catch (FacebookNetworkException fne) {
             String exMessage = "Network error when connecting with Facebook: " + fne.getMessage();
             log.warn(exMessage);
@@ -162,5 +187,10 @@ public class FacebookStatusUpdatePortlet extends AbstractSocialPortlet<FacebookA
         if (paramValue != null) {
             params.add(Parameter.with(paramName, paramValue));
         }
+    }
+
+    private void refreshParameter(String paramName, RenderRequest request, PortletSession session) {
+        String paramValue = getParameterAndSaveItToSession(paramName, request, session);
+        request.setAttribute(paramName, paramValue);
     }
 }

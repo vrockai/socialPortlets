@@ -77,7 +77,7 @@ limitations under the License.
 
             <label class="socialInputReq">
                 <span>Message:</span>
-                <input class="socialStatusFormInput" name="message" type="text"/>
+                <input class="socialStatusFormInput" name="message" type="text" value="${message}" />
             </label>
         </fieldset>
 
@@ -86,23 +86,23 @@ limitations under the License.
 
             <label class="socialInputReq">
                 <span>Link:</span>
-                <input class="socialStatusFormInput" name="link" type="text"/>
+                <input class="socialStatusFormInput" name="link" type="text" value="${link}"/>
             </label>
             <label>
                 <span>Picture:</span>
-                <input class="socialStatusFormInput" name="picture" type="text"/>
+                <input class="socialStatusFormInput" name="picture" type="text" value="${picture}"/>
             </label>
             <label>
                 <span>Name:</span>
-                <input class="socialStatusFormInput" name="name" type="text"/>
+                <input class="socialStatusFormInput" name="name" type="text" value="${name}"/>
             </label>
             <label>
                 <span>Caption:</span>
-                <input class="socialStatusFormInput" name="caption" type="text"/>
+                <input class="socialStatusFormInput" name="caption" type="text" value="${caption}"/>
             </label>
             <label>
                 <span>Description:</span>
-                <input class="socialStatusFormInput" name="description" type="text"/>
+                <input class="socialStatusFormInput" name="description" type="text" value="${description}"/>
             </label>
         </fieldset>
 
