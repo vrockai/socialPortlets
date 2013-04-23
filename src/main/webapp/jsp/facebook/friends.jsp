@@ -87,18 +87,22 @@ limitations under the License.
             <portlet:param name="_oauthCustomScope"
                            value="${fbFriend.id == fbMe.id ? 'user_status' : 'friends_status'}"/>
           </portlet:actionURL>
-          <c:choose>
-            <c:when test="${fbFriend.scope}">
-              This user doesn't have any public messages<br/>
-            </c:when>
-            <c:otherwise>
-              <b>WARNING: </b>
-              You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope:
-              <b>${fbFriend.neededScope}</b><br/>
 
-              Click <a style="color: blue;" href="${scopeUrl}">here</a> to fix it<br/><br/>
-            </c:otherwise>
-          </c:choose>
+          <div class="socialMessage">
+            <c:choose>
+              <c:when test="${fbFriend.scope}">
+                <h3 class="socialMessageNoticeHeader">Notice:</h3>
+                <span class="socialMessageContent">This user doesn't have any public messages</span>
+              </c:when>
+              <c:otherwise>
+                <h3 class="socialMessageHeader">Warning:</h3>
+              <span class="socialMessageContent">You have insufficient privileges (Facebook scope) to show status on FB wall. Your access token needs to have scope:
+              <b>${fbFriend.neededScope}</b><br/><br/>
+              Click <a href="${scopeUrl}">here</a> to fix it
+              </span>
+              </c:otherwise>
+            </c:choose>
+          </div>
         </c:when>
         <c:otherwise>
           <c:forEach var="fbStatus" items="${fbFriend.statuses}">

@@ -33,7 +33,9 @@ limitations under the License.
     <c:set var="fbStatus" value='<%= FacebookStatusUpdatePortlet.RENDER_PARAM_STATUS %>'/>
 
     <c:if test="${not empty param[fbStatus]}">
-        <div class="facebookActionStatus">
+        <div class="socialMessage">
+            <h3 class="socialMessageErrorHeader">Error:</h3>
+            <span class="socialMessageContent">
             <c:choose>
                 <c:when test="${param[fbStatus] == 'SUCCESS'}">
                     Your message has been successfully published on your Facebook wall.
@@ -49,6 +51,7 @@ limitations under the License.
                                        value="<%= AbstractSocialPortlet.ACTION_OAUTH_REDIRECT %>"/>
                         <portlet:param name="<%= OAuthConstants.PARAM_CUSTOM_SCOPE %>" value="publish_stream"/>
                     </portlet:actionURL>
+                    <br/>
                     Click <a href="${privilegesUrl}">here</a> to fix it.
                 </c:when>
                 <c:otherwise>
@@ -61,8 +64,8 @@ limitations under the License.
                 <portlet:param name="<%= ActionRequest.ACTION_NAME %>"
                                value="<%= FacebookStatusUpdatePortlet.ACTION_BACK %>"/>
             </portlet:actionURL>
-
-            <a href="${backUrl}">[Close]</a>
+              <a href='${backUrl}'><button>Close</button></a>
+            </span>
         </div>
     </c:if>
 

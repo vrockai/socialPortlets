@@ -283,8 +283,31 @@
     display: inline;
 }
 
+.socialMessageErrorHeader {
+    color: #f62A1F;
+    display: inline;
+}
+
+.socialMessageNoticeHeader {
+    color: #3b5998;
+    display: inline;
+}
+
+
 .socialMessageContent {
     color: #555;
     margin-left: 5px;
     font-size: 12px;
+}
+
+.socialCloseButton {
+    float: right;
+}
+
+.socialCloseButton input{
+    font-size: 12px;
+}
+
+.socialPortlet .socialMessage {
+    margin: 0 0 10px 0;
 }
