@@ -45,16 +45,22 @@
 
 .activityPopularity {
     text-align: right;
+    margin-top: 15px;
 }
 
-.activityLikes, .activityShares {
+.activityLikes, .activityShares, .activityTime {
+    color: #a0a0a0;
     display: inline-block;
     margin: 5px;
 }
 
 .activityLikes, .activityShares {
-    color: #a0a0a0;
     font-weight: bold;
+}
+
+.activityTime {
+    float: left;
+    margin-left: 0;
 }
 
 .commentDetails {
@@ -71,23 +77,29 @@
     border-bottom: none;
 }
 
+.commentAuthor, .commentTime {
+    color: #a0a0a0;
+}
+
 .commentAuthor {
     font-weight: bold;
-    color: #a0a0a0;
+}
+
+.commentTime {
+
 }
 
 .commentContent {
     margin-top: 5px;
     color: #505050;
-
 }
 
-.commentAuthor, .commentLikes {
+.commentAuthor, .commentLikes, .commentTime {
     display: inline-block;
 }
 
 .commentLikes {
-    color: red;
+    color: #D88;
     font-weight: bold;
     margin-left: 10px;
 }
@@ -98,8 +110,18 @@
     padding-left: 15px;
 }
 
-.activityLink {
+.activityMore {
     color: #A0A0A0;
+}
+
+.activityLink {
+    color: #444444;
+}
+
+.activityLink img {
+    max-width: 100%;
+    display: block;
+    margin: 10px auto;
 }
 
 /* Friends */

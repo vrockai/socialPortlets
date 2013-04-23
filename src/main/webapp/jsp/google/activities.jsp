@@ -17,6 +17,7 @@
 <%@ taglib uri="http://java.sun.com/portlet_2_0" prefix="portlet"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 <%@ page import="java.util.Locale"%>
 <%@ page import="java.util.ResourceBundle"%>
 <%@ page trimDirectiveWhitespaces="true"%>
@@ -28,20 +29,30 @@
         <div class="activityDetails">
             <div class="activityHeader">${gab.activity.title}</div>
             <c:forEach var="attachment" items="${gab.activity.object.attachments}">
-                <div class="activityLink">${attachment.content}</div>
+                <div class="activityLink"><img src='${attachment.image.url}'/> ${attachment.content}</div>
             </c:forEach>
             <div class="activityPopularity">
+                <div class="activityTime">
+                  <jsp:useBean id="activityDate" class="java.util.Date" />
+                  <jsp:setProperty name="activityDate" property="time" value="${gab.activity.updated.value}" />
+                  <fmt:formatDate type="date" dateStyle="long" value="${activityDate}" pattern="EEE MMM dd HH:mm:ss zzz yyyy" />
+                </div>
                 <div class="activityLikes">+${gab.activity.object.plusoners.totalItems}</div>
                 <div class="activityShares">${gab.activity.object.resharers.totalItems}</div>
                 <%-- <a href="${gab.activity.url}" class="activityLink ActionButton LightBlueStyle">details</a> --%>
-                <a href="${gab.activity.url}" class="activityLink">details &raquo;</a>
+                <a href="${gab.activity.url}" class="activityMore">details &raquo;</a>
             </div>
         </div>
 
-        <div class="activityComments">
+      <div class="activityComments">
         <c:forEach var="comment" items="${gab.commentFeed.items}">
             <div class="commentDetails">
                 <div class="commentAuthor">${comment.actor.displayName}</div>
+                <div class="commentTime">
+                    <jsp:useBean id="commentDate" class="java.util.Date" />
+                    <jsp:setProperty name="commentDate" property="time" value="${comment.updated.value}" />
+                    (<fmt:formatDate type="date" dateStyle="long" value="${commentDate}" pattern="yyyy-MM-dd" />)
+                </div>
                 <c:if test="${comment.plusoners.totalItems > 0}">
                     <div class="commentLikes">+${comment.plusoners.totalItems}</div>
                 </c:if>

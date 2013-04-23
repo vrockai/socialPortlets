@@ -106,6 +106,7 @@ limitations under the License.
               <div class="activityDetails">
                 <div class="activityHeader">${fbStatus.message}</div>
                 <div class="activityPopularity">
+                  <div class="activityTime">${fbStatus.updatedTime}</div>
                   <div class="activityLikes"
                        title='<c:forEach var="fbLike" items="${fbStatus.likes}" varStatus="id">${fbLike.name}${id.last ? "" : ", "}</c:forEach>' >
                     +${fn:length(fbStatus.likes)}
@@ -116,7 +117,8 @@ limitations under the License.
               <div class="activityComments">
                 <c:forEach var="fbComment" items="${fbStatus.comments}">
                   <div class="commentDetails">
-                    <div class="commentAuthor">${fbComment.from.name} (${fbComment.createdTime})</div>
+                    <div class="commentAuthor">${fbComment.from.name}</div>
+                    <div class="commentTime"> (${fbComment.createdTime})</div>
                     <c:if test="${fbComment.likeCount > 0}">
                       <div class="commentLikes">+${fbComment.likeCount}</div>
                     </c:if>
