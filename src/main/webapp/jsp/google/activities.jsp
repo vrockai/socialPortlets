@@ -24,7 +24,7 @@
 <div class="googlePortlet socialPortlet">
 <h3 class="googleHeader socialHeader">Activities</h3>
 <c:forEach var="gab" items="${googleActivityBeanList}">
-    <div class='googleActivity'>
+    <div class='socialActivity'>
         <div class="activityDetails">
             <div class="activityHeader">${gab.activity.title}</div>
             <c:forEach var="attachment" items="${gab.activity.object.attachments}">
